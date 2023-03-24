@@ -434,7 +434,6 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
           // reg-reg load (different encoding)
           if (instr_rdata_i[14:12] == 3'b111) begin
               illegal_insn_o = 1'b1;
-            end
           end
 
           // special p.elw (event load)
