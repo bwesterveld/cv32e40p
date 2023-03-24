@@ -340,11 +340,9 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
           3'b111: alu_operator_o = ALU_GEU;
           3'b010: begin // p.beqimm
               illegal_insn_o = 1'b1;
-            end
           end
           3'b011: begin // p.bneimm
               illegal_insn_o = 1'b1;
-            end
           end
         endcase
       end
