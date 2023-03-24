@@ -1280,91 +1280,7 @@ module cv32e40p_id_stage
   );
 
   generate
-    if (PULP_XPULP) begin : gen_hwloop_regs
-
-      ///////////////////////////////////////////////
-      //  _   ___        ___     ___   ___  ____   //
-      // | | | \ \      / / |   / _ \ / _ \|  _ \  //
-      // | |_| |\ \ /\ / /| |  | | | | | | | |_) | //
-      // |  _  | \ V  V / | |__| |_| | |_| |  __/  //
-      // |_| |_|  \_/\_/  |_____\___/ \___/|_|     //
-      //                                           //
-      ///////////////////////////////////////////////
-
-
-      cv32e40p_hwloop_regs #(
-          .N_REGS(N_HWLP)
-      ) hwloop_regs_i (
-          .clk  (clk),
-          .rst_n(rst_n),
-
-          // from ID
-          .hwlp_start_data_i(hwlp_start),
-          .hwlp_end_data_i  (hwlp_end),
-          .hwlp_cnt_data_i  (hwlp_cnt),
-          .hwlp_we_i        (hwlp_we),
-          .hwlp_regid_i     (hwlp_regid),
-
-          // from controller
-          .valid_i(hwlp_valid),
-
-          // to hwloop controller
-          .hwlp_start_addr_o(hwlp_start_o),
-          .hwlp_end_addr_o  (hwlp_end_o),
-          .hwlp_counter_o   (hwlp_cnt_o),
-
-          // from hwloop controller
-          .hwlp_dec_cnt_i(hwlp_dec_cnt)
-      );
-
-      assign hwlp_valid     = instr_valid_i & clear_instr_valid_o;
-
-      // hwloop register id
-      assign hwlp_regid_int = instr[7];  // rd contains hwloop register id
-
-      // hwloop target mux
-      always_comb begin
-        case (hwlp_target_mux_sel)
-          1'b0: hwlp_target = pc_id_i + {imm_iz_type[30:0], 1'b0};
-          1'b1: hwlp_target = pc_id_i + {imm_z_type[30:0], 1'b0};
-        endcase
-      end
-
-      // hwloop start mux
-      always_comb begin
-        case (hwlp_start_mux_sel)
-          1'b0: hwlp_start_int = hwlp_target;  // for PC + I imm
-          1'b1: hwlp_start_int = pc_id_i + 4;  // for next PC
-        endcase
-      end
-
-
-      // hwloop cnt mux
-      always_comb begin : hwlp_cnt_mux
-        case (hwlp_cnt_mux_sel)
-          1'b0: hwlp_cnt_int = imm_iz_type;
-          1'b1: hwlp_cnt_int = operand_a_fw_id;
-        endcase
-        ;
-      end
-
-      /*
-        when hwlp_mask is 1, the controller is about to take an interrupt
-        the xEPC is going to have the hwloop instruction PC, therefore, do not update the
-        hwloop registers to make clear that the instruction hasn't been executed.
-        Although it may not be a HW bugs causing uninteded behaviours,
-        it helps verifications processes when checking the hwloop regs
-      */
-      assign hwlp_we_masked = hwlp_we_int & ~{3{hwlp_mask}} & {3{id_ready_o}};
-
-      // multiplex between access from instructions and access via CSR registers
-      assign hwlp_start = hwlp_we_masked[0] ? hwlp_start_int : csr_hwlp_data_i;
-      assign hwlp_end   = hwlp_we_masked[1] ? hwlp_target    : csr_hwlp_data_i;
-      assign hwlp_cnt   = hwlp_we_masked[2] ? hwlp_cnt_int   : csr_hwlp_data_i;
-      assign hwlp_regid = (|hwlp_we_masked) ? hwlp_regid_int : csr_hwlp_regid_i;
-      assign hwlp_we    = (|hwlp_we_masked) ? hwlp_we_masked : csr_hwlp_we_i;
-
-    end else begin : gen_no_hwloop_regs
+    begin : gen_no_hwloop_regs
 
       assign hwlp_start_o   = 'b0;
       assign hwlp_end_o     = 'b0;
@@ -1652,15 +1568,6 @@ module cv32e40p_id_stage
   // Assertions
   //----------------------------------------------------------------------------
 `ifdef CV32E40P_ASSERT_ON
-
-  always_comb begin
-    if (FPU == 1) begin
-      assert (APU_NDSFLAGS_CPU >= C_RM+2*cv32e40p_fpu_pkg::FP_FORMAT_BITS+cv32e40p_fpu_pkg::INT_FORMAT_BITS)
-      else
-        $error("[apu] APU_NDSFLAGS_CPU APU flagbits is smaller than %0d",
-               C_RM + 2 * cv32e40p_fpu_pkg::FP_FORMAT_BITS + cv32e40p_fpu_pkg::INT_FORMAT_BITS);
-    end
-  end
 
   // make sure that branch decision is valid when jumping
   a_br_decision :

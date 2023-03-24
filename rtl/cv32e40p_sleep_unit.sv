@@ -103,21 +103,7 @@ module cv32e40p_sleep_unit #(
   assign fetch_enable_d = fetch_enable_i ? 1'b1 : fetch_enable_q;
 
   generate
-    if (PULP_CLUSTER) begin : g_pulp_sleep
-
-      // Busy unless in a p.elw and IF/APU are no longer busy
-      assign core_busy_d = p_elw_busy_d ? (if_busy_i || apu_busy_i) : 1'b1;
-
-      // Enable the clock only after the initial fetch enable while busy or instructed so by PULP Cluster's pulp_clock_en_i
-      assign clock_en = fetch_enable_q && (pulp_clock_en_i || core_busy_q);
-
-      // Sleep only in response to p.elw onec no longer busy (but not during various debug scenarios)
-      assign core_sleep_o = p_elw_busy_d && !core_busy_q && !debug_p_elw_no_sleep_i;
-
-      // p.elw is busy between load start and load finish (data_req_o / data_rvalid_i)
-      assign p_elw_busy_d = p_elw_start_i ? 1'b1 : (p_elw_finish_i ? 1'b0 : p_elw_busy_q);
-
-    end else begin : g_no_pulp_sleep
+    begin : g_no_pulp_sleep
 
       // Busy when any of the sub units is busy (typically wait for the instruction buffer to fill up)
       assign core_busy_d = if_busy_i || ctrl_busy_i || lsu_busy_i || apu_busy_i;
@@ -189,34 +175,7 @@ module cv32e40p_sleep_unit #(
   assert property (p_clock_en_2);
 
   generate
-    if (PULP_CLUSTER) begin : g_pulp_cluster_assertions
-
-      // Clock gate is only possibly disabled in RESET or when PULP_CLUSTER disables clock
-      property p_clock_en_3;
-        @(posedge clk_ungated_i) disable iff (!rst_n) (clock_en == 1'b0) -> ((id_stage_i.controller_i.ctrl_fsm_cs == cv32e40p_pkg::RESET) || (PULP_CLUSTER && !pulp_clock_en_i));
-      endproperty
-
-      a_clock_en_3 :
-      assert property (p_clock_en_3);
-
-      // Core can only sleep in response to p.elw
-      property p_only_sleep_during_p_elw;
-        @(posedge clk_ungated_i) disable iff (!rst_n) (core_sleep_o == 1'b1) |-> (p_elw_busy_d == 1'b1);
-      endproperty
-
-      a_only_sleep_during_p_elw :
-      assert property (p_only_sleep_during_p_elw);
-
-
-      // Environment fully controls clock_en during sleep
-      property p_full_clock_en_control;
-        @(posedge clk_ungated_i) disable iff (!rst_n) (core_sleep_o == 1'b1) |-> (pulp_clock_en_i == clock_en);
-      endproperty
-
-      a_full_clock_en_control :
-      assert property (p_full_clock_en_control);
-
-    end else begin : g_no_pulp_cluster_assertions
+    begin : g_no_pulp_cluster_assertions
 
       // Clock gate is only possibly disabled in RESET or SLEEP
       property p_clock_en_4;

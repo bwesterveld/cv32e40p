@@ -1102,34 +1102,6 @@ module cv32e40p_core
 `ifdef CV32E40P_ASSERT_ON
 
   //----------------------------------------------------------------------------
-  // Assumptions
-  //----------------------------------------------------------------------------
-
-  generate
-    if (PULP_CLUSTER) begin : gen_pulp_cluster_assumptions
-
-      // Assumptions/requirements on the environment when pulp_clock_en_i = 0
-      property p_env_req_0;
-        @(posedge clk_i) disable iff (!rst_ni) (pulp_clock_en_i == 1'b0) |-> (irq_i == 'b0) && (debug_req_i == 1'b0) &&
-                                                                            (instr_rvalid_i == 1'b0) && (instr_gnt_i == 1'b0) &&
-                                                                            (data_rvalid_i == 1'b0) && (data_gnt_i == 1'b0);
-      endproperty
-
-      a_env_req_0 :
-      assume property (p_env_req_0);
-
-      // Assumptions/requirements on the environment when core_sleep_o = 0
-      property p_env_req_1;
-        @(posedge clk_i) disable iff (!rst_ni) (core_sleep_o == 1'b0) |-> (pulp_clock_en_i == 1'b1);
-      endproperty
-
-      a_env_req_1 :
-      assume property (p_env_req_1);
-
-    end
-  endgenerate
-
-  //----------------------------------------------------------------------------
   // Assertions
   //----------------------------------------------------------------------------
 
@@ -1137,16 +1109,16 @@ module cv32e40p_core
   always_ff @(posedge rst_ni) begin
     if (PULP_XPULP) begin
       $warning(
-          "PULP_XPULP == 1 has not been verified yet and non-backward compatible RTL fixes are expected (see https://github.com/openhwgroup/cv32e40p/issues/452)");
+          "PULP_XPULP == 1 has not been verified yet, functionality has been stripped and non-backward compatible RTL fixes are expected (see https://github.com/openhwgroup/cv32e40p/issues/452)");
     end
     if (PULP_CLUSTER) begin
-      $warning("PULP_CLUSTER == 1 has not been verified yet");
+      $warning("PULP_CLUSTER == 1 has not been verified yet and functionality has been stripped");
     end
     if (FPU) begin
-      $warning("FPU == 1 has not been verified yet");
+      $warning("FPU == 1 has not been verified yet and functionality has been stripped");
     end
     if (PULP_ZFINX) begin
-      $warning("PULP_ZFINX == 1 has not been verified yet");
+      $warning("PULP_ZFINX == 1 has not been verified yet and functionality has been stripped");
     end
   end
 
