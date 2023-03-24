@@ -301,61 +301,15 @@ module cv32e40p_ex_stage
   );
 
   generate
-    if (FPU == 1) begin : gen_apu
-      ////////////////////////////////////////////////////
-      //     _    ____  _   _   ____ ___ ____  ____     //
-      //    / \  |  _ \| | | | |  _ \_ _/ ___||  _ \    //
-      //   / _ \ | |_) | | | | | | | | |\___ \| |_) |   //
-      //  / ___ \|  __/| |_| | | |_| | | ___) |  __/    //
-      // /_/   \_\_|    \___/  |____/___|____/|_|       //
-      //                                                //
-      ////////////////////////////////////////////////////
-
-      cv32e40p_apu_disp apu_disp_i (
-          .clk_i (clk),
-          .rst_ni(rst_n),
-
-          .enable_i   (apu_en_i),
-          .apu_lat_i  (apu_lat_i),
-          .apu_waddr_i(apu_waddr_i),
-
-          .apu_waddr_o      (apu_waddr),
-          .apu_multicycle_o (apu_multicycle),
-          .apu_singlecycle_o(apu_singlecycle),
-
-          .active_o(apu_active),
-          .stall_o (apu_stall),
-
-          .is_decoding_i     (is_decoding_i),
-          .read_regs_i       (apu_read_regs_i),
-          .read_regs_valid_i (apu_read_regs_valid_i),
-          .read_dep_o        (apu_read_dep_o),
-          .write_regs_i      (apu_write_regs_i),
-          .write_regs_valid_i(apu_write_regs_valid_i),
-          .write_dep_o       (apu_write_dep_o),
-
-          .perf_type_o(apu_perf_type_o),
-          .perf_cont_o(apu_perf_cont_o),
-
-          // apu-interconnect
-          // handshake signals
-          .apu_req_o   (apu_req),
-          .apu_gnt_i   (apu_gnt),
-          // response channel
-          .apu_rvalid_i(apu_valid)
-      );
-
-      assign apu_perf_wb_o   = wb_contention | wb_contention_lsu;
-      assign apu_ready_wb_o  = ~(apu_active | apu_en_i | apu_stall) | apu_valid;
-
-      assign apu_req_o       = apu_req;
-      assign apu_gnt         = apu_gnt_i;
-      assign apu_valid       = apu_rvalid_i;
-      assign apu_operands_o  = apu_operands_i;
-      assign apu_op_o        = apu_op_i;
-      assign apu_result      = apu_result_i;
-      assign fpu_fflags_we_o = apu_valid;
-    end else begin : gen_no_apu
+    ////////////////////////////////////////////////////
+    //     _    ____  _   _   ____ ___ ____  ____     //
+    //    / \  |  _ \| | | | |  _ \_ _/ ___||  _ \    //
+    //   / _ \ | |_) | | | | | | | | |\___ \| |_) |   //
+    //  / ___ \|  __/| |_| | | |_| | | ___) |  __/    //
+    // /_/   \_\_|    \___/  |____/___|____/|_|       //
+    //                                                //
+    ////////////////////////////////////////////////////
+    begin : gen_no_apu
       // default assignements for the case when no FPU/APU is attached.
       assign apu_req_o         = '0;
       assign apu_operands_o[0] = '0;
