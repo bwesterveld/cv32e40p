@@ -24,20 +24,21 @@
 MAKE			= make
 
 # vsim configuration
-VVERSION                = "10.7b"
+# Our install doesn't specify the version like this
+#VVERSION                = "10.7b"
 
-VLIB			= vlib-$(VVERSION)
+VLIB			= vlib
 VWORK			= work
 
-VLOG			= vlog-$(VVERSION)
-VLOG_FLAGS		= -pedanticerrors -suppress 2577 -suppress 2583 -define CV32E40P_TRACE_EXECUTION
+VLOG			= vlog
+VLOG_FLAGS		= -pedanticerrors -suppress 2577 -suppress 2912 -suppress 2583 -define CV32E40P_TRACE_EXECUTION
 VLOG_LOG                = vloggy
 
-VOPT			= vopt-$(VVERSION)
-VOPT_FLAGS		= -debugdb -fsmdebug -pedanticerrors +acc #=mnprft
+VOPT			= vopt
+VOPT_FLAGS		= -debugdb -suppress 2912 -fsmdebug -pedanticerrors +acc #=mnprft
 
-VSIM			= vsim-$(VVERSION)
-VSIM_HOME               = /usr/pack/modelsim-$(VVERSION)-kgf/questasim
+VSIM			= vsim
+VSIM_HOME               = /usr/pack/modelsim-kgf/questasim
 VSIM_FLAGS              =  # user defined
 ALL_VSIM_FLAGS		= $(VSIM_FLAGS)
 VSIM_DEBUG_FLAGS	= -debugdb
@@ -205,7 +206,7 @@ tb-clean-fp:
 # We link with our custom crt0.s and syscalls.c against newlib so that we can
 # use the c standard library
 custom/hello_world.elf: custom/hello_world.c
-	$(RISCV_EXE_PREFIX)gcc -march=rv32imc -o $@ -w -Os -g -nostdlib \
+	$(RISCV_EXE_PREFIX)gcc -march=rv32imc_zicsr -o $@ -w -Os -g -nostdlib \
 		$(CUSTOM_GCC_FLAGS) \
 		-T custom/link.ld \
 		-static \
@@ -258,7 +259,7 @@ custom-fp-vsim-run-gui: vsim-run-gui-fp
 
 # compile and run interrupt
 interrupt/interrupt.elf: interrupt/interrupt.c
-	$(RISCV_EXE_PREFIX)gcc -march=rv32imc -o $@ -w -Os -g -nostdlib \
+	$(RISCV_EXE_PREFIX)gcc -march=rv32imc_zicsr -o $@ -w -Os -g -nostdlib \
 		${CUSTOM_GCC_FLAGS} \
 		-T custom/link.ld  \
 		-static \
