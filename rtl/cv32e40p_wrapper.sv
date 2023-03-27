@@ -137,7 +137,24 @@ module cv32e40p_wrapper #(
   );
 
   generate
-    begin : no_fpu_gen
+    if (FPU) begin : fpu_gen
+      // Instantiate the FPU wrapper
+      cv32e40p_fp_wrapper #(
+          .FPU_ADDMUL_LAT(FPU_ADDMUL_LAT),
+          .FPU_OTHERS_LAT(FPU_OTHERS_LAT)
+      ) fp_wrapper_i (
+          .clk_i         (clk_i),
+          .rst_ni        (rst_ni),
+          .apu_req_i     (apu_req),
+          .apu_gnt_o     (apu_gnt),
+          .apu_operands_i(apu_operands),
+          .apu_op_i      (apu_op),
+          .apu_flags_i   (apu_flags),
+          .apu_rvalid_o  (apu_rvalid),
+          .apu_rdata_o   (apu_rdata),
+          .apu_rflags_o  (apu_rflags)
+      );
+    end else begin : no_fpu_gen
       // Drive FPU output signals to 0
       assign apu_gnt    = '0;
       assign apu_rvalid = '0;
@@ -145,5 +162,4 @@ module cv32e40p_wrapper #(
       assign apu_rflags = '0;
     end
   endgenerate
-
 endmodule
