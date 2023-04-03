@@ -248,7 +248,10 @@ module cv32e40p_id_stage
     output logic mhpmevent_pipe_stall_o,
 
     input logic        perf_imiss_i,
-    input logic [31:0] mcounteren_i
+    input logic [31:0] mcounteren_i,
+
+    // Custom countermeasure signals
+    output logic cstm_lui_executed_o
 );
 
   // Source/Destination register instruction index
@@ -1061,8 +1064,8 @@ module cv32e40p_id_stage
       .ctrl_transfer_target_mux_sel_o(ctrl_transfer_target_mux_sel),
 
       // HPM related control signals
-      .mcounteren_i(mcounteren_i)
-
+      .mcounteren_i(mcounteren_i),
+      .cstm_lui_executed_o(cstm_lui_executed_o)
   );
 
   ////////////////////////////////////////////////////////////////////
