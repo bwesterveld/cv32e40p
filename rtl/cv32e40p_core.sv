@@ -732,7 +732,7 @@ module cv32e40p_core
       .mhpmevent_pipe_stall_o  (mhpmevent_pipe_stall),
 
       .perf_imiss_i(perf_imiss),
-      .mcounteren_i(mcounteren),
+      .mcounteren_i(mcounteren)
 
       // Custom countermeasure signals
       // .cstm_lui_executed_o (cstm_lui_executed_ex)
