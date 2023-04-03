@@ -735,7 +735,7 @@ module cv32e40p_core
       .mcounteren_i(mcounteren),
 
       // Custom countermeasure signals
-      .cstm_lui_executed_o (cstm_lui_executed_ex)
+      // .cstm_lui_executed_o (cstm_lui_executed_ex)
   );
 
 
