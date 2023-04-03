@@ -149,7 +149,11 @@ module cv32e40p_ex_stage
 
     output logic ex_ready_o,  // EX stage ready for new data
     output logic ex_valid_o,  // EX stage gets new data
-    input  logic wb_ready_i  // WB stage ready for new data
+    input  logic wb_ready_i,  // WB stage ready for new data
+
+    // Custom countermeasure signals
+    input logic cstm_lui_executed_i,
+    output logic cstm_lui_executed_o
 );
 
   logic [31:0] alu_result;
@@ -345,6 +349,7 @@ module cv32e40p_ex_stage
     if (~rst_n) begin
       regfile_waddr_lsu <= '0;
       regfile_we_lsu    <= 1'b0;
+      cstm_lui_executed_o <= 1'b0;
     end else begin
       if (ex_valid_o) // wb_ready_i is implied
       begin
@@ -352,10 +357,14 @@ module cv32e40p_ex_stage
         if (regfile_we_i & ~lsu_err_i) begin
           regfile_waddr_lsu <= regfile_waddr_i;
         end
+
+        // These custom control signals are just forwarded.
+        cstm_lui_executed_o <= cstm_lui_executed_i;
       end else if (wb_ready_i) begin
         // we are ready for a new instruction, but there is none available,
         // so we just flush the current one out of the pipe
         regfile_we_lsu <= 1'b0;
+        cstm_lui_executed_o <= 1'b0;
       end
     end
   end

@@ -356,6 +356,10 @@ module cv32e40p_core
   logic [             31:0]       instr_addr_pmp;
   logic                           instr_err_pmp;
 
+  // Custom countermeasure signals
+  logic                           cstm_lui_executed_ex;
+  logic                           cstm_lui_executed_wb;
+
   // Mux selector for vectored IRQ PC
   assign m_exc_vec_pc_mux_id = (mtvec_mode == 2'b0) ? 5'h0 : exc_cause;
   assign u_exc_vec_pc_mux_id = (utvec_mode == 2'b0) ? 5'h0 : exc_cause;
@@ -728,7 +732,10 @@ module cv32e40p_core
       .mhpmevent_pipe_stall_o  (mhpmevent_pipe_stall),
 
       .perf_imiss_i(perf_imiss),
-      .mcounteren_i(mcounteren)
+      .mcounteren_i(mcounteren),
+
+      // Custom countermeasure signals
+      .cstm_lui_executed_o (cstm_lui_executed_ex)
   );
 
 
@@ -855,7 +862,12 @@ module cv32e40p_core
 
       .ex_ready_o(ex_ready),
       .ex_valid_o(ex_valid),
-      .wb_ready_i(lsu_ready_wb)
+      .wb_ready_i(lsu_ready_wb),
+
+      // Custom countermeasure signals
+      .cstm_lui_executed_i (cstm_lui_executed_ex),
+      .cstm_lui_executed_o (cstm_lui_executed_wb)
+
   );
 
 
@@ -913,7 +925,10 @@ module cv32e40p_core
       .lsu_ready_ex_o(lsu_ready_ex),
       .lsu_ready_wb_o(lsu_ready_wb),
 
-      .busy_o(lsu_busy)
+      .busy_o(lsu_busy),
+
+      // Custom countermeasure signals
+      .cstm_lui_executed_i (cstm_lui_executed_wb)
   );
 
   // Tracer signal

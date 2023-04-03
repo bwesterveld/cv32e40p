@@ -75,6 +75,10 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
   input  logic [31:0] instr_rdata_i,           // instruction read from instr memory/cache
   input  logic        illegal_c_insn_i,        // compressed instruction decode failed
 
+  // TODO: Forward a new signal that is only active with a LUI instruction
+  // and then verify we can compile that instruction and see the signal be
+  // active
+
   // ALU signals
   output logic        alu_en_o,                // ALU enable
   output alu_opcode_e alu_operator_o, // ALU operation selection
@@ -151,7 +155,10 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
   output logic [1:0]  ctrl_transfer_target_mux_sel_o,        // jump target selection
 
   // HPM related control signals
-  input  logic [31:0] mcounteren_i
+  input  logic [31:0] mcounteren_i,
+
+  // Custom countermeasure signals
+  output logic cstm_lui_executed_o
 );
 
   // write enable/request control
@@ -281,6 +288,8 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
     mret_dec_o                  = 1'b0;
     uret_dec_o                  = 1'b0;
     dret_dec_o                  = 1'b0;
+
+    cstm_lui_executed_o         = 1'b0;
 
     unique case (instr_rdata_i[6:0])
 
@@ -516,6 +525,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
         imm_b_mux_sel_o     = IMMB_U;
         alu_operator_o      = ALU_ADD;
         regfile_alu_we      = 1'b1;
+        cstm_lui_executed_o = 1'b1;
       end
 
       OPCODE_AUIPC: begin  // Add Upper Immediate to PC

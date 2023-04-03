@@ -69,7 +69,10 @@ module cv32e40p_load_store_unit #(
     output logic lsu_ready_ex_o,  // LSU ready for new data in EX stage
     output logic lsu_ready_wb_o,  // LSU ready for new data in WB stage
 
-    output logic busy_o
+    output logic busy_o,
+
+    // Custom countermeasure signals
+    input logic cstm_lui_executed_i
 );
 
   localparam DEPTH = 2;  // Maximum number of outstanding transactions
