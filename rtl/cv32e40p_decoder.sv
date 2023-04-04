@@ -155,7 +155,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
   output logic [1:0]  ctrl_transfer_target_mux_sel_o,        // jump target selection
 
   // HPM related control signals
-  input  logic [31:0] mcounteren_i,
+  input  logic [31:0] mcounteren_i
 
   // Custom countermeasure signals
   // output logic  [31:0] cstm_instr_data_o
@@ -250,7 +250,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
     csr_op                      = CSR_OP_READ;
     mret_insn_o                 = 1'b0;
     uret_insn_o                 = 1'b0;
-
+cstm
     dret_insn_o                 = 1'b0;
 
     data_we_o                   = 1'b0;
