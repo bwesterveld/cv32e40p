@@ -1065,7 +1065,7 @@ module cv32e40p_id_stage
 
       // HPM related control signals
       .mcounteren_i(mcounteren_i),
-      .cstm_instr_data_o (cstm_instr_data_o)
+      // .cstm_instr_data_o (cstm_instr_data_o)
   );
 
   ////////////////////////////////////////////////////////////////////
@@ -1378,6 +1378,7 @@ module cv32e40p_id_stage
       pc_ex_o                <= '0;
 
       branch_in_ex_o         <= 1'b0;
+      cstm_instr_data_o      <= 32'b0;
 
     end else if (data_misaligned_i) begin
       // misaligned data access case
@@ -1403,6 +1404,7 @@ module cv32e40p_id_stage
 
       if (id_valid_o) begin  // unstall the whole pipeline
         alu_en_ex_o <= alu_en;
+        cstm_instr_data_o <= instr;
         if (alu_en) begin
           alu_operator_ex_o   <= alu_operator;
           alu_operand_a_ex_o  <= alu_operand_a;

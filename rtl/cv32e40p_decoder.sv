@@ -158,7 +158,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
   input  logic [31:0] mcounteren_i,
 
   // Custom countermeasure signals
-  output logic  [31:0] cstm_instr_data_o
+  // output logic  [31:0] cstm_instr_data_o
 );
 
   // write enable/request control
@@ -289,7 +289,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
     uret_dec_o                  = 1'b0;
     dret_dec_o                  = 1'b0;
 
-    cstm_instr_data_o         = instr_rdata_i;
+    // cstm_instr_data_o         = instr_rdata_i;
 
     unique case (instr_rdata_i[6:0])
 
