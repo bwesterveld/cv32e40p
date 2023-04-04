@@ -72,7 +72,7 @@ module cv32e40p_load_store_unit #(
     output logic busy_o,
 
     // Custom countermeasure signals
-    input logic cstm_lui_executed_i
+    input logic [31:0] cstm_instr_data_i
 );
 
   localparam DEPTH = 2;  // Maximum number of outstanding transactions

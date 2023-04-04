@@ -158,7 +158,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
   input  logic [31:0] mcounteren_i,
 
   // Custom countermeasure signals
-  output logic cstm_lui_executed_o
+  output logic  [31:0] cstm_instr_data_o
 );
 
   // write enable/request control
@@ -289,7 +289,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
     uret_dec_o                  = 1'b0;
     dret_dec_o                  = 1'b0;
 
-    cstm_lui_executed_o         = 1'b0;
+    cstm_instr_data_o         = instr_rdata_i;
 
     unique case (instr_rdata_i[6:0])
 
@@ -525,7 +525,6 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
         imm_b_mux_sel_o     = IMMB_U;
         alu_operator_o      = ALU_ADD;
         regfile_alu_we      = 1'b1;
-        cstm_lui_executed_o = 1'b1;
       end
 
       OPCODE_AUIPC: begin  // Add Upper Immediate to PC
