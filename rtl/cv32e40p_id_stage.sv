@@ -1064,7 +1064,7 @@ module cv32e40p_id_stage
       .ctrl_transfer_target_mux_sel_o(ctrl_transfer_target_mux_sel),
 
       // HPM related control signals
-      .mcounteren_i(mcounteren_i),
+      .mcounteren_i(mcounteren_i)
       // .cstm_instr_data_o (cstm_instr_data_o)
   );
 
