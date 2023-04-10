@@ -23,7 +23,8 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-module cv32e40p_load_store_unit #(
+module cv32e40p_load_store_unit import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*; import cv32e40p_fpu_pkg::*;
+#(
     parameter PULP_OBI = 0  // Legacy PULP OBI behavior
 ) (
     input logic clk,

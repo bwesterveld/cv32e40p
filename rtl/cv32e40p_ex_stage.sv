@@ -29,9 +29,7 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-module cv32e40p_ex_stage
-  import cv32e40p_pkg::*;
-  import cv32e40p_apu_core_pkg::*;
+module cv32e40p_ex_stage import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*; import cv32e40p_fpu_pkg::*;
 #(
     parameter FPU              = 0,
     parameter APU_NARGS_CPU    = 3,
