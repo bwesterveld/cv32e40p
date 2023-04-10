@@ -251,7 +251,16 @@ module cv32e40p_id_stage
     input logic [31:0] mcounteren_i,
 
     // Custom countermeasure signals
-    output logic [31:0] cstm_instr_data_o
+    output logic [31:0] cstm_instr_data_o,
+    output logic [2:0]  cstm_alu_op_a_mux_sel_o,      // operand a selection: reg value, PC, immediate or zero
+    output logic [2:0]  cstm_alu_op_b_mux_sel_o,      // operand b selection: reg value or immediate
+    output logic [1:0]  cstm_alu_op_c_mux_sel_o,      // operand c selection: reg value or jump target
+    output logic [1:0]  cstm_alu_vec_mode_o,          // selects between 32 bit, 16 bit and 8 bit vectorial modes
+    output logic        cstm_scalar_replication_o,    // scalar replication enable
+    output logic        cstm_scalar_replication_c_o,  // scalar replication enable for operand C
+    output logic [0:0]  cstm_imm_a_mux_sel_o,         // immediate selection for operand a
+    output logic [3:0]  cstm_imm_b_mux_sel_o,         // immediate selection for operand b
+    output logic [1:0]  cstm_regc_mux_o              // register c selection: S3, RD or 0
 );
 
   // Source/Destination register instruction index
@@ -1417,6 +1426,18 @@ module cv32e40p_id_stage
           alu_is_clpx_ex_o    <= is_clpx;
           alu_clpx_shift_ex_o <= instr[14:13];
           alu_is_subrot_ex_o  <= is_subrot;
+
+          // Forward the control signals, not just the selected operands
+          cstm_alu_op_a_mux_sel_o     <= alu_op_a_mux_sel;      // operand a selection: reg value, PC, immediate or zero
+          cstm_alu_op_b_mux_sel_o     <= alu_op_b_mux_sel;      // operand b selection: reg value or immediate
+          cstm_alu_op_c_mux_sel_o     <= alu_op_c_mux_sel;      // operand c selection: reg value or jump target
+          cstm_alu_vec_mode_o         <= alu_vec_mode;          // selects between 32 bit, 16 bit and 8 bit vectorial modes
+          cstm_scalar_replication_o   <= scalar_replication;    // scalar replication enable
+          cstm_scalar_replication_c_o <= scalar_replication_c;  // scalar replication enable for operand C
+          cstm_imm_a_mux_sel_o        <= imm_a_mux_sel;         // immediate selection for operand a
+          cstm_imm_b_mux_sel_o        <= imm_b_mux_sel;         // immediate selection for operand b
+          cstm_regc_mux_o             <= regc_mux;              // register c selection: S3, RD or 0
+
         end
 
         mult_en_ex_o <= mult_en;

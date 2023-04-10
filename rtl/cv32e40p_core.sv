@@ -360,6 +360,31 @@ module cv32e40p_core
   logic [31:0]                    cstm_instr_data_ex;
   logic [31:0]                    cstm_instr_data_wb;
 
+  // Custom countermeasure signals ALU
+  logic               cstm_alu_en_wb;
+  alu_opcode_e        cstm_alu_operator_wb;
+  logic               cstm_regfile_alu_we_wb;
+
+  logic [2:0]  cstm_alu_op_a_mux_sel_ex;      // operand a selection: reg value, PC, immediate or zero
+  logic [2:0]  cstm_alu_op_b_mux_sel_ex;      // operand b selection: reg value or immediate
+  logic [1:0]  cstm_alu_op_c_mux_sel_ex;      // operand c selection: reg value or jump target
+  logic [1:0]  cstm_alu_vec_mode_ex;          // selects between 32 bit, 16 bit and 8 bit vectorial modes
+  logic        cstm_scalar_replication_ex;    // scalar replication enable
+  logic        cstm_scalar_replication_c_ex;  // scalar replication enable for operand C
+  logic [0:0]  cstm_imm_a_mux_sel_ex;         // immediate selection for operand a
+  logic [3:0]  cstm_imm_b_mux_sel_ex;         // immediate selection for operand b
+  logic [1:0]  cstm_regc_mux_ex;              // register c selection: S3, RD or 0
+
+  logic [2:0]  cstm_alu_op_a_mux_sel_wb;      // operand a selection: reg value, PC, immediate or zero
+  logic [2:0]  cstm_alu_op_b_mux_sel_wb;      // operand b selection: reg value or immediate
+  logic [1:0]  cstm_alu_op_c_mux_sel_wb;      // operand c selection: reg value or jump target
+  logic [1:0]  cstm_alu_vec_mode_wb;          // selects between 32 bit, 16 bit and 8 bit vectorial modes
+  logic        cstm_scalar_replication_wb;    // scalar replication enable
+  logic        cstm_scalar_replication_c_wb;  // scalar replication enable for operand C
+  logic [0:0]  cstm_imm_a_mux_sel_wb;         // immediate selection for operand a
+  logic [3:0]  cstm_imm_b_mux_sel_wb;         // immediate selection for operand b
+  logic [1:0]  cstm_regc_mux_wb;              // register c selection: S3, RD or 0
+
   // Mux selector for vectored IRQ PC
   assign m_exc_vec_pc_mux_id = (mtvec_mode == 2'b0) ? 5'h0 : exc_cause;
   assign u_exc_vec_pc_mux_id = (utvec_mode == 2'b0) ? 5'h0 : exc_cause;
@@ -735,7 +760,17 @@ module cv32e40p_core
       .mcounteren_i(mcounteren),
 
       // Custom countermeasure signals
-      .cstm_instr_data_o (cstm_instr_data_ex)
+      .cstm_instr_data_o (cstm_instr_data_ex),
+
+      .cstm_alu_op_a_mux_sel_o (cstm_alu_op_a_mux_sel_ex),      // operand a selection: reg value, PC, immediate or zero
+      .cstm_alu_op_b_mux_sel_o (cstm_alu_op_b_mux_sel_ex),      // operand b selection: reg value or immediate
+      .cstm_alu_op_c_mux_sel_o (cstm_alu_op_c_mux_sel_ex),      // operand c selection: reg value or jump target
+      .cstm_alu_vec_mode_o (cstm_alu_vec_mode_ex),          // selects between 32 bit, 16 bit and 8 bit vectorial modes
+      .cstm_scalar_replication_o (cstm_scalar_replication_ex),    // scalar replication enable
+      .cstm_scalar_replication_c_o (cstm_scalar_replication_c_ex),  // scalar replication enable for operand C
+      .cstm_imm_a_mux_sel_o (cstm_imm_a_mux_sel_ex),         // immediate selection for operand a
+      .cstm_imm_b_mux_sel_o (cstm_imm_b_mux_sel_ex),         // immediate selection for operand b
+      .cstm_regc_mux_o (cstm_regc_mux_ex)              // register c selection: S3, RD or 0
   );
 
 
@@ -866,8 +901,32 @@ module cv32e40p_core
 
       // Custom countermeasure signals
       .cstm_instr_data_i (cstm_instr_data_ex),
-      .cstm_instr_data_o (cstm_instr_data_wb)
+      .cstm_instr_data_o (cstm_instr_data_wb),
 
+      // Alu signals from EX stage to WB
+
+      .cstm_alu_op_a_mux_sel_i (cstm_alu_op_a_mux_sel_ex),      // operand a selection: reg value, PC, immediate or zero
+      .cstm_alu_op_b_mux_sel_i (cstm_alu_op_b_mux_sel_ex),      // operand b selection: reg value or immediate
+      .cstm_alu_op_c_mux_sel_i (cstm_alu_op_c_mux_sel_ex),      // operand c selection: reg value or jump target
+      .cstm_alu_vec_mode_i (cstm_alu_vec_mode_ex),          // selects between 32 bit, 16 bit and 8 bit vectorial modes
+      .cstm_scalar_replication_i (cstm_scalar_replication_ex),    // scalar replication enable
+      .cstm_scalar_replication_c_i (cstm_scalar_replication_c_ex),  // scalar replication enable for operand C
+      .cstm_imm_a_mux_sel_i (cstm_imm_a_mux_sel_ex),         // immediate selection for operand a
+      .cstm_imm_b_mux_sel_i (cstm_imm_b_mux_sel_ex),         // immediate selection for operand b
+      .cstm_regc_mux_i (cstm_regc_mux_ex),              // register c selection: S3, RD or 0
+
+      .cstm_alu_operator_o (cstm_alu_operator_wb),
+      .cstm_alu_en_o (cstm_alu_en_wb),
+      .cstm_regfile_alu_we_o (cstm_regfile_alu_we_wb),
+      .cstm_alu_op_a_mux_sel_o (cstm_alu_op_a_mux_sel_wb),      // operand a selection: reg value, PC, immediate or zero
+      .cstm_alu_op_b_mux_sel_o (cstm_alu_op_b_mux_sel_wb),      // operand b selection: reg value or immediate
+      .cstm_alu_op_c_mux_sel_o (cstm_alu_op_c_mux_sel_wb),      // operand c selection: reg value or jump target
+      .cstm_alu_vec_mode_o (cstm_alu_vec_mode_wb),          // selects between 32 bit, 16 bit and 8 bit vectorial modes
+      .cstm_scalar_replication_o (cstm_scalar_replication_wb),    // scalar replication enable
+      .cstm_scalar_replication_c_o (cstm_scalar_replication_c_wb),  // scalar replication enable for operand C
+      .cstm_imm_a_mux_sel_o (cstm_imm_a_mux_sel_wb),         // immediate selection for operand a
+      .cstm_imm_b_mux_sel_o (cstm_imm_b_mux_sel_wb),         // immediate selection for operand b
+      .cstm_regc_mux_o (cstm_regc_mux_wb)              // register c selection: S3, RD or 0
   );
 
 
@@ -928,7 +987,20 @@ module cv32e40p_core
       .busy_o(lsu_busy),
 
       // Custom countermeasure signals
-      .cstm_instr_data_i (cstm_instr_data_wb)
+      .cstm_instr_data_i (cstm_instr_data_wb),
+      // Alu signals from EX stage to WB
+      .cstm_alu_operator_i (cstm_alu_operator_wb),
+      .cstm_alu_en_i (cstm_alu_en_wb),
+      .cstm_regfile_alu_we_i (cstm_regfile_alu_we_wb),
+      .cstm_alu_op_a_mux_sel_i (cstm_alu_op_a_mux_sel_wb),      // operand a selection: reg value, PC, immediate or zero
+      .cstm_alu_op_b_mux_sel_i (cstm_alu_op_b_mux_sel_wb),      // operand b selection: reg value or immediate
+      .cstm_alu_op_c_mux_sel_i (cstm_alu_op_c_mux_sel_wb),      // operand c selection: reg value or jump target
+      .cstm_alu_vec_mode_i (cstm_alu_vec_mode_wb),          // selects between 32 bit, 16 bit and 8 bit vectorial modes
+      .cstm_scalar_replication_i (cstm_scalar_replication_wb),    // scalar replication enable
+      .cstm_scalar_replication_c_i (cstm_scalar_replication_c_wb),  // scalar replication enable for operand C
+      .cstm_imm_a_mux_sel_i (cstm_imm_a_mux_sel_wb),         // immediate selection for operand a
+      .cstm_imm_b_mux_sel_i (cstm_imm_b_mux_sel_wb),         // immediate selection for operand b
+      .cstm_regc_mux_i (cstm_regc_mux_wb)              // register c selection: S3, RD or 0
   );
 
   // Tracer signal

@@ -73,6 +73,18 @@ module cv32e40p_load_store_unit #(
 
     // Custom countermeasure signals
     input logic [31:0] cstm_instr_data_i
+    input alu_opcode_e cstm_alu_operator_i,
+    input logic        cstm_alu_en_i,
+    input logic        cstm_regfile_alu_we_i,
+    input logic [2:0]  cstm_alu_op_a_mux_sel_i,      // operand a selection: reg value, PC, immediate or zero
+    input logic [2:0]  cstm_alu_op_b_mux_sel_i,      // operand b selection: reg value or immediate
+    input logic [1:0]  cstm_alu_op_c_mux_sel_i,      // operand c selection: reg value or jump target
+    input logic [1:0]  cstm_alu_vec_mode_i,          // selects between 32 bit, 16 bit and 8 bit vectorial modes
+    input logic        cstm_scalar_replication_i,    // scalar replication enable
+    input logic        cstm_scalar_replication_c_i,  // scalar replication enable for operand C
+    input logic [0:0]  cstm_imm_a_mux_sel_i,         // immediate selection for operand a
+    input logic [3:0]  cstm_imm_b_mux_sel_i,         // immediate selection for operand b
+    input logic [1:0]  cstm_regc_mux_i              // register c selection: S3, RD or 0
 );
 
   localparam DEPTH = 2;  // Maximum number of outstanding transactions
@@ -117,6 +129,9 @@ module cv32e40p_load_store_unit #(
   logic load_err_o, store_err_o;
 
   logic [31:0] rdata_q;
+  
+  // Signal to keep track of whether the control signals are valid
+  logic cstm_control_signals_valid;
 
   ///////////////////////////////// BE generation ////////////////////////////////
   always_comb begin
@@ -548,5 +563,35 @@ module cv32e40p_load_store_unit #(
   assert property (p_address_phase_signals_defined);
 
 `endif
+
+
+
+always_comb begin
+  tmp_alu_en                    = 1'b1;
+  tmp_alu_operator              = ALU_SLTU;
+  tmp_alu_op_a_mux_sel          = OP_A_REGA_OR_FWD;
+  tmp_alu_op_b_mux_sel          = OP_B_REGB_OR_FWD;
+  tmp_alu_op_c_mux_sel          = OP_C_REGC_OR_FWD;
+  tmp_alu_vec_mode              = VEC_MODE32;
+  tmp_scalar_replication        = 1'b0;
+  tmp_scalar_replication_c      = 1'b0;
+  tmp_regc_mux                  = REGC_ZERO;
+  tmp_imm_a_mux_sel             = IMMA_ZERO;
+  tmp_imm_b_mux_sel             = IMMB_I;
+  cstm_control_signals_valid    = 1'b0;
+
+  unique case (instr_rdata_i[6:0])
+    OPCODE_LUI: begin  // Load Upper Immediate
+      tmp_alu_op_a_mux_sel  = OP_A_IMM;
+      tmp_alu_op_b_mux_sel  = OP_B_IMM;
+      tmp_imm_a_mux_sel     = IMMA_ZERO;
+      tmp_imm_b_mux_sel     = IMMB_U;
+      tmp_alu_operator      = ALU_ADD;
+      tmp_regfile_alu_we      = 1'b1;
+    end
+  endcase
+end
+
+cstm_control_signals_valid = (tmp_alu_op_a_mux_sel == cstm_alu_op_a_mux_sel_i) && (tmp_alu_op_b_mux_sel == cstm_alu_op_b_mux_sel_i) && (tmp_imm_a_mux_sel == cstm_imm_a_mux_sel_i) && (tmp_imm_b_mux_sel == cstm_imm_b_mux_sel_i) && (tmp_alu_operator == cstm_alu_operator_i) && (tmp_regfile_alu_we == cstm_regfile_alu_we_i);
 
 endmodule

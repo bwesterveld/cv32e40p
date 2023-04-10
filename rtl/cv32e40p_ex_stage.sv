@@ -153,7 +153,31 @@ module cv32e40p_ex_stage
 
     // Custom countermeasure signals
     input logic [31:0] cstm_instr_data_i,
-    output logic [31:0] cstm_instr_data_o
+    output logic [31:0] cstm_instr_data_o,
+
+    input logic [2:0]  cstm_alu_op_a_mux_sel_i,      // operand a selection: reg value, PC, immediate or zero
+    input logic [2:0]  cstm_alu_op_b_mux_sel_i,      // operand b selection: reg value or immediate
+    input logic [1:0]  cstm_alu_op_c_mux_sel_i,      // operand c selection: reg value or jump target
+    input logic [1:0]  cstm_alu_vec_mode_i,          // selects between 32 bit, 16 bit and 8 bit vectorial modes
+    input logic        cstm_scalar_replication_i,    // scalar replication enable
+    input logic        cstm_scalar_replication_c_i,  // scalar replication enable for operand C
+    input logic [0:0]  cstm_imm_a_mux_sel_i,         // immediate selection for operand a
+    input logic [3:0]  cstm_imm_b_mux_sel_i,         // immediate selection for operand b
+    input logic [1:0]  cstm_regc_mux_i,              // register c selection: S3, RD or 0
+
+    output alu_opcode_e cstm_alu_operator_o,
+    output logic        cstm_alu_en_o,
+    output logic        cstm_regfile_alu_we_o,
+    output logic [2:0]  cstm_alu_op_a_mux_sel_o,      // operand a selection: reg value, PC, immediate or zero
+    output logic [2:0]  cstm_alu_op_b_mux_sel_o,      // operand b selection: reg value or immediate
+    output logic [1:0]  cstm_alu_op_c_mux_sel_o,      // operand c selection: reg value or jump target
+    output logic [1:0]  cstm_alu_vec_mode_o,          // selects between 32 bit, 16 bit and 8 bit vectorial modes
+    output logic        cstm_scalar_replication_o,    // scalar replication enable
+    output logic        cstm_scalar_replication_c_o,  // scalar replication enable for operand C
+    output logic [0:0]  cstm_imm_a_mux_sel_o,         // immediate selection for operand a
+    output logic [3:0]  cstm_imm_b_mux_sel_o,         // immediate selection for operand b
+    output logic [1:0]  cstm_regc_mux_o              // register c selection: S3, RD or 0
+
 );
 
   logic [31:0] alu_result;
@@ -349,7 +373,23 @@ module cv32e40p_ex_stage
     if (~rst_n) begin
       regfile_waddr_lsu <= '0;
       regfile_we_lsu    <= 1'b0;
+
+      // Forward instruction
       cstm_instr_data_o <= 32'b0;
+
+      // Forward ALU signals
+      cstm_alu_en                      = 1'b1;
+      cstm_alu_operator_o              = ALU_SLTU;
+      cstm_alu_op_a_mux_sel_o          = OP_A_REGA_OR_FWD;
+      cstm_alu_op_b_mux_sel_o          = OP_B_REGB_OR_FWD;
+      cstm_alu_op_c_mux_sel_o          = OP_C_REGC_OR_FWD;
+      cstm_alu_vec_mode_o              = VEC_MODE32;
+      cstm_scalar_replication_o        = 1'b0;
+      cstm_scalar_replication_c_o      = 1'b0;
+      cstm_regc_mux_o                  = REGC_ZERO;
+      cstm_imm_a_mux_sel_o             = IMMA_ZERO;
+      cstm_imm_b_mux_sel_o             = IMMB_I;
+
     end else begin
       if (ex_valid_o) // wb_ready_i is implied
       begin
@@ -359,7 +399,23 @@ module cv32e40p_ex_stage
         end
 
         // These custom control signals are just forwarded.
+        // Instruction
         cstm_instr_data_o <= cstm_instr_data_i;
+
+        // ALU
+        cstm_alu_operator_o <= alu_operator_i;
+        cstm_alu_en_o <= alu_en_i;
+        cstm_regfile_alu_we_o <= regfile_alu_we;
+        cstm_alu_op_a_mux_sel_o <= cstm_alu_op_a_mux_sel_i;
+        cstm_alu_op_b_mux_sel_o <= cstm_alu_op_b_mux_sel_i;
+        cstm_alu_op_c_mux_sel_o <= cstm_alu_op_c_mux_sel_i;
+        cstm_alu_vec_mode_o <= cstm_alu_vec_mode_i;
+        cstm_scalar_replication_o <= cstm_scalar_replication_i;
+        cstm_scalar_replication_c_o <= cstm_scalar_replication_c_i;
+        cstm_imm_a_mux_sel_o <= cstm_imm_a_mux_sel_i;
+        cstm_imm_b_mux_sel_o <= cstm_imm_b_mux_sel_i;
+        cstm_regc_mux_o <= cstm_regc_mux_i;
+
       end else if (wb_ready_i) begin
         // we are ready for a new instruction, but there is none available,
         // so we just flush the current one out of the pipe
