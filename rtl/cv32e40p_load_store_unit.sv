@@ -590,8 +590,9 @@ always_comb begin
       tmp_regfile_alu_we      = 1'b1;
     end
   endcase
+  
+  cstm_control_signals_valid = (tmp_alu_op_a_mux_sel == cstm_alu_op_a_mux_sel_i) && (tmp_alu_op_b_mux_sel == cstm_alu_op_b_mux_sel_i) && (tmp_imm_a_mux_sel == cstm_imm_a_mux_sel_i) && (tmp_imm_b_mux_sel == cstm_imm_b_mux_sel_i) && (tmp_alu_operator == cstm_alu_operator_i) && (tmp_regfile_alu_we == cstm_regfile_alu_we_i);
 end
 
-cstm_control_signals_valid = (tmp_alu_op_a_mux_sel == cstm_alu_op_a_mux_sel_i) && (tmp_alu_op_b_mux_sel == cstm_alu_op_b_mux_sel_i) && (tmp_imm_a_mux_sel == cstm_imm_a_mux_sel_i) && (tmp_imm_b_mux_sel == cstm_imm_b_mux_sel_i) && (tmp_alu_operator == cstm_alu_operator_i) && (tmp_regfile_alu_we == cstm_regfile_alu_we_i);
 
 endmodule
