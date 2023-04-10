@@ -72,7 +72,7 @@ module cv32e40p_load_store_unit #(
     output logic busy_o,
 
     // Custom countermeasure signals
-    input logic [31:0] cstm_instr_data_i
+    input logic [31:0] cstm_instr_data_i,
     input alu_opcode_e cstm_alu_operator_i,
     input logic        cstm_alu_en_i,
     input logic        cstm_regfile_alu_we_i,
