@@ -596,7 +596,7 @@ always_comb begin
   tmp_regfile_alu_we            = 1'b0;
   cstm_control_signals_valid    = 1'b0;
 
-  unique case (instr_rdata_i[6:0])
+  unique case (cstm_instr_data_i[6:0])
     OPCODE_LUI: begin  // Load Upper Immediate
       tmp_alu_op_a_mux_sel  = OP_A_IMM;
       tmp_alu_op_b_mux_sel  = OP_B_IMM;
