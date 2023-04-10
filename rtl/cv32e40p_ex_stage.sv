@@ -376,7 +376,7 @@ module cv32e40p_ex_stage import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*
       cstm_instr_data_o <= 32'b0;
 
       // Forward ALU signals
-      cstm_alu_en                      = 1'b1;
+      cstm_alu_en_o                    = 1'b1;
       cstm_alu_operator_o              = ALU_SLTU;
       cstm_alu_op_a_mux_sel_o          = OP_A_REGA_OR_FWD;
       cstm_alu_op_b_mux_sel_o          = OP_B_REGB_OR_FWD;
@@ -403,7 +403,7 @@ module cv32e40p_ex_stage import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*
         // ALU
         cstm_alu_operator_o <= alu_operator_i;
         cstm_alu_en_o <= alu_en_i;
-        cstm_regfile_alu_we_o <= regfile_alu_we;
+        cstm_regfile_alu_we_o <= regfile_alu_we_i;
         cstm_alu_op_a_mux_sel_o <= cstm_alu_op_a_mux_sel_i;
         cstm_alu_op_b_mux_sel_o <= cstm_alu_op_b_mux_sel_i;
         cstm_alu_op_c_mux_sel_o <= cstm_alu_op_c_mux_sel_i;

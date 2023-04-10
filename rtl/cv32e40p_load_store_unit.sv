@@ -134,6 +134,20 @@ module cv32e40p_load_store_unit import cv32e40p_pkg::*; import cv32e40p_apu_core
   // Signal to keep track of whether the control signals are valid
   logic cstm_control_signals_valid;
 
+  alu_opcode_e tmp_alu_operator;
+  logic        tmp_alu_en;
+  logic        tmp_regfile_alu_we;
+  logic [2:0]  tmp_alu_op_a_mux_sel;      // operand a selection: reg value, PC, immediate or zero
+  logic [2:0]  tmp_alu_op_b_mux_sel;      // operand b selection: reg value or immediate
+  logic [1:0]  tmp_alu_op_c_mux_sel;      // operand c selection: reg value or jump target
+  logic [1:0]  tmp_alu_vec_mode;          // selects between 32 bit, 16 bit and 8 bit vectorial modes
+  logic        tmp_scalar_replication;    // scalar replication enable
+  logic        tmp_scalar_replication_c;  // scalar replication enable for operand C
+  logic [0:0]  tmp_imm_a_mux_sel;         // immediate selection for operand a
+  logic [3:0]  tmp_imm_b_mux_sel;         // immediate selection for operand b
+  logic [1:0]  tmp_regc_mux;             // register c selection: S3, RD or 0
+
+
   ///////////////////////////////// BE generation ////////////////////////////////
   always_comb begin
     case (data_type_ex_i)  // Data type 00 Word, 01 Half word, 11,10 byte
@@ -579,6 +593,7 @@ always_comb begin
   tmp_regc_mux                  = REGC_ZERO;
   tmp_imm_a_mux_sel             = IMMA_ZERO;
   tmp_imm_b_mux_sel             = IMMB_I;
+  tmp_regfile_alu_we            = 1'b0;
   cstm_control_signals_valid    = 1'b0;
 
   unique case (instr_rdata_i[6:0])
