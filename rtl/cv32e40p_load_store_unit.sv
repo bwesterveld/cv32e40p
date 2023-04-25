@@ -624,7 +624,6 @@ always_comb begin
       tmp_alu_op_b_mux_sel     = OP_B_IMM;
       tmp_imm_b_mux_sel        = IMMB_I;
       tmp_regfile_alu_we       = 1'b1;
-      rega_used_o              = 1'b1;
       cstm_instruction_checked = 1'b1;
 
       unique case (cstm_instr_data_i[14:12])
