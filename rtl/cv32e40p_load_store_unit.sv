@@ -133,6 +133,8 @@ module cv32e40p_load_store_unit import cv32e40p_pkg::*; import cv32e40p_apu_core
   
   // Signal to keep track of whether the control signals are valid
   logic cstm_control_signals_valid;
+  logic cstm_instruction_checked;
+  logic cstm_fault_detected;
 
   alu_opcode_e tmp_alu_operator;
   logic        tmp_alu_en;
@@ -595,6 +597,8 @@ always_comb begin
   tmp_imm_b_mux_sel             = IMMB_I;
   tmp_regfile_alu_we            = 1'b0;
   cstm_control_signals_valid    = 1'b0;
+  cstm_instruction_checked      = 1'b0;
+  cstm_fault_detected           = 1'b0;
 
   unique case (cstm_instr_data_i[6:0])
     OPCODE_LUI: begin  // Load Upper Immediate
@@ -603,11 +607,13 @@ always_comb begin
       tmp_imm_a_mux_sel     = IMMA_ZERO;
       tmp_imm_b_mux_sel     = IMMB_U;
       tmp_alu_operator      = ALU_ADD;
-      tmp_regfile_alu_we      = 1'b1;
+      tmp_regfile_alu_we       = 1'b1;
+      cstm_instruction_checked = 1'b1;
     end
   endcase
   
   cstm_control_signals_valid = (tmp_alu_op_a_mux_sel == cstm_alu_op_a_mux_sel_i) && (tmp_alu_op_b_mux_sel == cstm_alu_op_b_mux_sel_i) && (tmp_imm_a_mux_sel == cstm_imm_a_mux_sel_i) && (tmp_imm_b_mux_sel == cstm_imm_b_mux_sel_i) && (tmp_alu_operator == cstm_alu_operator_i) && (tmp_regfile_alu_we == cstm_regfile_alu_we_i);
+  cstm_fault_detected = cstm_instruction_checked & !cstm_control_signals_valid;
 end
 
 
