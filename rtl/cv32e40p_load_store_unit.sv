@@ -610,6 +610,330 @@ always_comb begin
       tmp_regfile_alu_we       = 1'b1;
       cstm_instruction_checked = 1'b1;
     end
+
+OPCODE_AUIPC: begin  // Add Upper Immediate to PC
+        alu_op_a_mux_sel_o  = OP_A_CURRPC;
+        alu_op_b_mux_sel_o  = OP_B_IMM;
+        imm_b_mux_sel_o     = IMMB_U;
+        alu_operator_o      = ALU_ADD;
+        regfile_alu_we      = 1'b1;
+      end
+
+      OPCODE_OPIMM: begin // Register-Immediate ALU Operations
+        alu_op_b_mux_sel_o  = OP_B_IMM;
+        imm_b_mux_sel_o     = IMMB_I;
+        regfile_alu_we      = 1'b1;
+        rega_used_o         = 1'b1;
+
+        unique case (instr_rdata_i[14:12])
+          3'b000: alu_operator_o = ALU_ADD;  // Add Immediate
+          3'b010: alu_operator_o = ALU_SLTS; // Set to one if Lower Than Immediate
+          3'b011: alu_operator_o = ALU_SLTU; // Set to one if Lower Than Immediate Unsigned
+          3'b100: alu_operator_o = ALU_XOR;  // Exclusive Or with Immediate
+          3'b110: alu_operator_o = ALU_OR;   // Or with Immediate
+          3'b111: alu_operator_o = ALU_AND;  // And with Immediate
+
+          3'b001: begin
+            alu_operator_o = ALU_SLL;  // Shift Left Logical by Immediate
+            if (instr_rdata_i[31:25] != 7'b0)
+              illegal_insn_o = 1'b1;
+          end
+
+          3'b101: begin
+            if (instr_rdata_i[31:25] == 7'b0)
+              alu_operator_o = ALU_SRL;  // Shift Right Logical by Immediate
+            else if (instr_rdata_i[31:25] == 7'b010_0000)
+              alu_operator_o = ALU_SRA;  // Shift Right Arithmetically by Immediate
+            else
+              illegal_insn_o = 1'b1;
+          end
+
+
+        endcase
+      end
+
+      OPCODE_OP: begin  // Register-Register ALU operation
+
+        // PREFIX 11
+        if (instr_rdata_i[31:30] == 2'b11) begin
+          begin
+            illegal_insn_o = 1'b1;
+          end
+        end
+
+        // PREFIX 10
+        else if (instr_rdata_i[31:30] == 2'b10) begin
+          //////////////////////////////
+          // REGISTER BIT-MANIPULATION
+          //////////////////////////////
+          if (instr_rdata_i[29:25]==5'b00000) begin
+            if (PULP_XPULP) begin
+              regfile_alu_we = 1'b1;
+              rega_used_o    = 1'b1;
+
+              bmask_a_mux_o       = BMASK_A_S3;
+              bmask_b_mux_o       = BMASK_B_S2;
+              alu_op_b_mux_sel_o  = OP_B_IMM;
+
+              unique case (instr_rdata_i[14:12])
+                3'b000: begin
+                  alu_operator_o  = ALU_BEXT;
+                  imm_b_mux_sel_o = IMMB_S2;
+                  bmask_b_mux_o   = BMASK_B_ZERO;
+                  //register variant
+                  alu_op_b_mux_sel_o     = OP_B_BMASK;
+                  alu_bmask_a_mux_sel_o  = BMASK_A_REG;
+                  regb_used_o            = 1'b1;
+                end
+                3'b001: begin
+                  alu_operator_o  = ALU_BEXTU;
+                  imm_b_mux_sel_o = IMMB_S2;
+                  bmask_b_mux_o   = BMASK_B_ZERO;
+                  //register variant
+                  alu_op_b_mux_sel_o     = OP_B_BMASK;
+                  alu_bmask_a_mux_sel_o  = BMASK_A_REG;
+                  regb_used_o            = 1'b1;
+                end
+                3'b010: begin
+                  alu_operator_o      = ALU_BINS;
+                  imm_b_mux_sel_o     = IMMB_S2;
+                  regc_used_o         = 1'b1;
+                  regc_mux_o          = REGC_RD;
+                  //register variant
+                  alu_op_b_mux_sel_o     = OP_B_BMASK;
+                  alu_bmask_a_mux_sel_o  = BMASK_A_REG;
+                  alu_bmask_b_mux_sel_o  = BMASK_B_REG;
+                  regb_used_o            = 1'b1;
+                end
+                3'b011: begin
+                  alu_operator_o = ALU_BCLR;
+                  //register variant
+                  regb_used_o            = 1'b1;
+                  alu_bmask_a_mux_sel_o  = BMASK_A_REG;
+                  alu_bmask_b_mux_sel_o  = BMASK_B_REG;
+                end
+                3'b100: begin
+                  alu_operator_o = ALU_BSET;
+                  //register variant
+                  regb_used_o            = 1'b1;
+                  alu_bmask_a_mux_sel_o  = BMASK_A_REG;
+                  alu_bmask_b_mux_sel_o  = BMASK_B_REG;
+                end
+                default: illegal_insn_o = 1'b1;
+              endcase
+            end else begin
+              illegal_insn_o = 1'b1;
+            end
+
+          ///////////////////////
+          // VECTORIAL FLOAT OPS
+          ///////////////////////
+          end else begin
+            begin
+              illegal_insn_o = 1'b1;
+            end
+          end // Vectorial Float Ops
+
+        end  // prefix 10
+
+        // PREFIX 00/01
+        else begin
+          // non bit-manipulation instructions
+          regfile_alu_we = 1'b1;
+          rega_used_o    = 1'b1;
+
+          if (~instr_rdata_i[28]) regb_used_o = 1'b1;
+
+          unique case ({instr_rdata_i[30:25], instr_rdata_i[14:12]})
+            // RV32I ALU operations
+            {6'b00_0000, 3'b000}: alu_operator_o = ALU_ADD;   // Add
+            {6'b10_0000, 3'b000}: alu_operator_o = ALU_SUB;   // Sub
+            {6'b00_0000, 3'b010}: alu_operator_o = ALU_SLTS;  // Set Lower Than
+            {6'b00_0000, 3'b011}: alu_operator_o = ALU_SLTU;  // Set Lower Than Unsigned
+            {6'b00_0000, 3'b100}: alu_operator_o = ALU_XOR;   // Xor
+            {6'b00_0000, 3'b110}: alu_operator_o = ALU_OR;    // Or
+            {6'b00_0000, 3'b111}: alu_operator_o = ALU_AND;   // And
+            {6'b00_0000, 3'b001}: alu_operator_o = ALU_SLL;   // Shift Left Logical
+            {6'b00_0000, 3'b101}: alu_operator_o = ALU_SRL;   // Shift Right Logical
+            {6'b10_0000, 3'b101}: alu_operator_o = ALU_SRA;   // Shift Right Arithmetic
+
+            // supported RV32M instructions
+            {6'b00_0001, 3'b000}: begin // mul
+              alu_en          = 1'b0;
+              mult_int_en     = 1'b1;
+              mult_operator_o = MUL_MAC32;
+              regc_mux_o      = REGC_ZERO;
+            end
+            {6'b00_0001, 3'b001}: begin // mulh
+              alu_en             = 1'b0;
+              regc_used_o        = 1'b1;
+              regc_mux_o         = REGC_ZERO;
+              mult_signed_mode_o = 2'b11;
+              mult_int_en        = 1'b1;
+              mult_operator_o    = MUL_H;
+            end
+            {6'b00_0001, 3'b010}: begin // mulhsu
+              alu_en             = 1'b0;
+              regc_used_o        = 1'b1;
+              regc_mux_o         = REGC_ZERO;
+              mult_signed_mode_o = 2'b01;
+              mult_int_en        = 1'b1;
+              mult_operator_o    = MUL_H;
+            end
+            {6'b00_0001, 3'b011}: begin // mulhu
+              alu_en             = 1'b0;
+              regc_used_o        = 1'b1;
+              regc_mux_o         = REGC_ZERO;
+              mult_signed_mode_o = 2'b00;
+              mult_int_en        = 1'b1;
+              mult_operator_o    = MUL_H;
+            end
+            {6'b00_0001, 3'b100}: begin // div
+              alu_op_a_mux_sel_o = OP_A_REGB_OR_FWD;
+              alu_op_b_mux_sel_o = OP_B_REGA_OR_FWD;
+              regb_used_o        = 1'b1;
+              alu_operator_o     = ALU_DIV;
+            end
+            {6'b00_0001, 3'b101}: begin // divu
+              alu_op_a_mux_sel_o = OP_A_REGB_OR_FWD;
+              alu_op_b_mux_sel_o = OP_B_REGA_OR_FWD;
+              regb_used_o        = 1'b1;
+              alu_operator_o     = ALU_DIVU;
+            end
+            {6'b00_0001, 3'b110}: begin // rem
+              alu_op_a_mux_sel_o = OP_A_REGB_OR_FWD;
+              alu_op_b_mux_sel_o = OP_B_REGA_OR_FWD;
+              regb_used_o        = 1'b1;
+              alu_operator_o     = ALU_REM;
+            end
+            {6'b00_0001, 3'b111}: begin // remu
+              alu_op_a_mux_sel_o = OP_A_REGB_OR_FWD;
+              alu_op_b_mux_sel_o = OP_B_REGA_OR_FWD;
+              regb_used_o        = 1'b1;
+              alu_operator_o     = ALU_REMU;
+            end
+
+            // PULP specific instructions
+            {6'b10_0001, 3'b000}: begin         // p.mac
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b10_0001, 3'b001}: begin         // p.msu
+             begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_0010, 3'b010}: begin         // Set Lower Equal Than - p.slet
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_0010, 3'b011}: begin         // Set Lower Equal Than Unsigned; p.sletu
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_0010, 3'b100}: begin         // Min - p.min
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_0010, 3'b101}: begin         // Min Unsigned - p.minu
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_0010, 3'b110}: begin         // Max - p.max
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_0010, 3'b111}: begin         // Max Unsigned - p.maxu
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_0100, 3'b101}: begin         // Rotate Right - p.ror
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+
+            // PULP specific instructions using only one source register
+
+            {6'b00_1000, 3'b000}: begin         // Find First 1 - p.ff1
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_1000, 3'b001}: begin         // Find Last 1 - p.fl1
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_1000, 3'b010}: begin         // Count Leading Bits - p.clb
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_1000, 3'b011}: begin         // Count set bits (popcount) - p.cnt
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_1000, 3'b100}: begin         // Sign-extend Halfword - p.exths
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_1000, 3'b101}: begin         // Zero-extend Halfword - p.exthz
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_1000, 3'b110}: begin         // Sign-extend Byte - p.extbs
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_1000, 3'b111}: begin         // Zero-extend Byte - p.extbz
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_0010, 3'b000}: begin         // p.abs
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_1010, 3'b001}: begin         // p.clip
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_1010, 3'b010}: begin         // p.clipu
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_1010, 3'b101}: begin         // p.clipr
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+            {6'b00_1010, 3'b110}: begin         // p.clipur
+              begin
+                illegal_insn_o = 1'b1;
+              end
+            end
+
+            default: begin
+              illegal_insn_o = 1'b1;
+            end
+          endcase
+        end
+      end
   endcase
   
   cstm_control_signals_valid = (tmp_alu_op_a_mux_sel == cstm_alu_op_a_mux_sel_i) && (tmp_alu_op_b_mux_sel == cstm_alu_op_b_mux_sel_i) && (tmp_imm_a_mux_sel == cstm_imm_a_mux_sel_i) && (tmp_imm_b_mux_sel == cstm_imm_b_mux_sel_i) && (tmp_alu_operator == cstm_alu_operator_i) && (tmp_regfile_alu_we == cstm_regfile_alu_we_i);
