@@ -627,7 +627,7 @@ always_comb begin
       rega_used_o              = 1'b1;
       cstm_instruction_checked = 1'b1;
 
-      unique case (instr_rdata_i[14:12])
+      unique case (cstm_instr_data_i[14:12])
         3'b000: tmp_alu_operator = ALU_ADD;  // Add Immediate
         3'b010: tmp_alu_operator = ALU_SLTS; // Set to one if Lower Than Immediate
         3'b011: tmp_alu_operator = ALU_SLTU; // Set to one if Lower Than Immediate Unsigned
@@ -640,9 +640,9 @@ always_comb begin
         end
 
         3'b101: begin
-          if (instr_rdata_i[31:25] == 7'b0)
+          if (cstm_instr_data_i[31:25] == 7'b0)
             tmp_alu_operator = ALU_SRL;  // Shift Right Logical by Immediate
-          else if (instr_rdata_i[31:25] == 7'b010_0000)
+          else if (cstm_instr_data_i[31:25] == 7'b010_0000)
             tmp_alu_operator = ALU_SRA;  // Shift Right Arithmetically by Immediate
         end
       endcase
@@ -650,13 +650,13 @@ always_comb begin
 
     OPCODE_OP: begin  // Register-Register ALU operation
       // PREFIX 11
-      if (instr_rdata_i[31:30] == 2'b11) begin
+      if (cstm_instr_data_i[31:30] == 2'b11) begin
         begin
         end
       end
 
       // PREFIX 10
-      else if (instr_rdata_i[31:30] == 2'b10) begin
+      else if (cstm_instr_data_i[31:30] == 2'b10) begin
       end  // prefix 10
 
       // PREFIX 00/01
@@ -664,14 +664,14 @@ always_comb begin
         // TODO:
         // Check for these signals when they are forwarded. They are the
         // MULT extension of riscv
-        
+
         // non bit-manipulation instructions
         // regfile_alu_we = 1'b1;
         // rega_used_o    = 1'b1;
 
-        // if (~instr_rdata_i[28]) regb_used_o = 1'b1;
+        // if (~cstm_instr_data_i[28]) regb_used_o = 1'b1;
 
-        // unique case ({instr_rdata_i[30:25], instr_rdata_i[14:12]})
+        // unique case ({cstm_instr_data_i[30:25], cstm_instr_data_i[14:12]})
         //   // RV32I ALU operations
         //   {6'b00_0000, 3'b000}: alu_operator_o = ALU_ADD;   // Add
         //   {6'b10_0000, 3'b000}: alu_operator_o = ALU_SUB;   // Sub
