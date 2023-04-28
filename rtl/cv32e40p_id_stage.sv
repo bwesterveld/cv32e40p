@@ -251,6 +251,7 @@ module cv32e40p_id_stage
     input logic [31:0] mcounteren_i,
 
     // Custom countermeasure signals
+    // ALU RV32I
     output logic [31:0] cstm_instr_data_o,
     output logic [2:0]  cstm_alu_op_a_mux_sel_o,      // operand a selection: reg value, PC, immediate or zero
     output logic [2:0]  cstm_alu_op_b_mux_sel_o,      // operand b selection: reg value or immediate
@@ -260,7 +261,16 @@ module cv32e40p_id_stage
     output logic        cstm_scalar_replication_c_o,  // scalar replication enable for operand C
     output logic [0:0]  cstm_imm_a_mux_sel_o,         // immediate selection for operand a
     output logic [3:0]  cstm_imm_b_mux_sel_o,         // immediate selection for operand b
-    output logic [1:0]  cstm_regc_mux_o              // register c selection: S3, RD or 0
+    output logic [1:0]  cstm_regc_mux_o,              // register c selection: S3, RD or 0
+
+    // ALU RV32IM Multiplication extension
+    output logic        cstm_rega_used_o,             // rs1 is used by current instruction
+    output logic        cstm_regb_used_o,             // rs2 is used by current instruction
+    output logic        cstm_regc_used_o,             // rs3 is used by current instruction
+    output mul_opcode_e cstm_mult_operator_o,         // Multiplication operation selection
+    output logic        cstm_mult_int_en_o,           // perform integer multiplication
+    output logic [0:0]  cstm_mult_imm_mux_o,          // Multiplication immediate mux selector
+    output logic [1:0]  cstm_mult_signed_mode_o      // Multiplication in signed mode
 );
 
   // Source/Destination register instruction index
@@ -1437,6 +1447,14 @@ module cv32e40p_id_stage
           cstm_imm_a_mux_sel_o        <= imm_a_mux_sel;         // immediate selection for operand a
           cstm_imm_b_mux_sel_o        <= imm_b_mux_sel;         // immediate selection for operand b
           cstm_regc_mux_o             <= regc_mux;              // register c selection: S3, RD or 0
+
+          cstm_rega_used_o            <= rega_used_dec;
+          cstm_regb_used_o            <= regb_used_dec;
+          cstm_regc_used_o            <= regc_used_dec;
+          cstm_mult_operator_o        <= mult_operator;
+          cstm_mult_int_en_o          <= mult_int_en;
+          cstm_mult_imm_mux_o         <= mult_imm_mux;
+          cstm_mult_signed_mode_o     <= mult_signed_mode;
 
         end
 

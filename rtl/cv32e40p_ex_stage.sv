@@ -174,7 +174,24 @@ module cv32e40p_ex_stage import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*
     output logic        cstm_scalar_replication_c_o,  // scalar replication enable for operand C
     output logic [0:0]  cstm_imm_a_mux_sel_o,         // immediate selection for operand a
     output logic [3:0]  cstm_imm_b_mux_sel_o,         // immediate selection for operand b
-    output logic [1:0]  cstm_regc_mux_o              // register c selection: S3, RD or 0
+    output logic [1:0]  cstm_regc_mux_o,              // register c selection: S3, RD or 0
+
+    // ALU RV32IM Multiplication extension
+    input logic        cstm_rega_used_i,             // rs1 is used by current instruction
+    input logic        cstm_regb_used_i,             // rs2 is used by current instruction
+    input logic        cstm_regc_used_i,             // rs3 is used by current instruction
+    input mul_opcode_e cstm_mult_operator_i,         // Multiplication operation selection
+    input logic        cstm_mult_int_en_i,           // perform integer multiplication
+    input logic [0:0]  cstm_mult_imm_mux_i,          // Multiplication immediate mux selector
+    input logic [1:0]  cstm_mult_signed_mode_i      // Multiplication in signed mode
+
+    output logic        cstm_rega_used_o,             // rs1 is used by current instruction
+    output logic        cstm_regb_used_o,             // rs2 is used by current instruction
+    output logic        cstm_regc_used_o,             // rs3 is used by current instruction
+    output mul_opcode_e cstm_mult_operator_o,         // Multiplication operation selection
+    output logic        cstm_mult_int_en_o,           // perform integer multiplication
+    output logic [0:0]  cstm_mult_imm_mux_o,          // Multiplication immediate mux selector
+    output logic [1:0]  cstm_mult_signed_mode_o      // Multiplication in signed mode
 
 );
 
@@ -388,6 +405,15 @@ module cv32e40p_ex_stage import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*
       cstm_imm_a_mux_sel_o             = IMMA_ZERO;
       cstm_imm_b_mux_sel_o             = IMMB_I;
 
+      cstm_rega_used_o                 = 1'b0;
+      cstm_regb_used_o                 = 1'b0;
+      cstm_regc_used_o                 = 1'b0;
+      cstm_mult_operator_o             = MUL_I;
+      cstm_mult_int_en                 = 1'b0;
+      cstm_mult_imm_mux_o              = MIMM_ZERO;
+      cstm_mult_signed_mode_o          = 2'b00;
+
+
     end else begin
       if (ex_valid_o) // wb_ready_i is implied
       begin
@@ -413,6 +439,15 @@ module cv32e40p_ex_stage import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*
         cstm_imm_a_mux_sel_o <= cstm_imm_a_mux_sel_i;
         cstm_imm_b_mux_sel_o <= cstm_imm_b_mux_sel_i;
         cstm_regc_mux_o <= cstm_regc_mux_i;
+
+        // ALU Mult
+        cstm_rega_used_o <= cstm_rega_used_o;
+        cstm_regb_used_o <= cstm_regb_used_o;
+        cstm_regc_used_o <= cstm_regc_used_o;
+        cstm_mult_operator_o <= cstm_mult_operator_o;
+        cstm_mult_int_en_o <= cstm_mult_int_en_o;
+        cstm_mult_imm_mux_o <= cstm_mult_imm_mux_o;
+        cstm_mult_signed_mode_o <= cstm_mult_signed_mode_o;
 
       end else if (wb_ready_i) begin
         // we are ready for a new instruction, but there is none available,

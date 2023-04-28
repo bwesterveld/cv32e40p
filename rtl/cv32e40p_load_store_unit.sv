@@ -86,6 +86,15 @@ module cv32e40p_load_store_unit import cv32e40p_pkg::*; import cv32e40p_apu_core
     input logic [0:0]  cstm_imm_a_mux_sel_i,         // immediate selection for operand a
     input logic [3:0]  cstm_imm_b_mux_sel_i,         // immediate selection for operand b
     input logic [1:0]  cstm_regc_mux_i              // register c selection: S3, RD or 0
+
+    // ALU RV32IM Multiplication extension
+    input logic        cstm_rega_used_i,             // rs1 is used by current instruction
+    input logic        cstm_regb_used_i,             // rs2 is used by current instruction
+    input logic        cstm_regc_used_i,             // rs3 is used by current instruction
+    input mul_opcode_e cstm_mult_operator_i,         // Multiplication operation selection
+    input logic        cstm_mult_int_en_i,           // perform integer multiplication
+    input logic [0:0]  cstm_mult_imm_mux_i,          // Multiplication immediate mux selector
+    input logic [1:0]  cstm_mult_signed_mode_i      // Multiplication in signed mode
 );
 
   localparam DEPTH = 2;  // Maximum number of outstanding transactions
@@ -149,6 +158,14 @@ module cv32e40p_load_store_unit import cv32e40p_pkg::*; import cv32e40p_apu_core
   logic [3:0]  tmp_imm_b_mux_sel;         // immediate selection for operand b
   logic [1:0]  tmp_regc_mux;             // register c selection: S3, RD or 0
 
+  // ALU RV32IM Multiplication extension
+  logic        tmp_rega_used,             // rs1 is used by current instruction
+  logic        tmp_regb_used,             // rs2 is used by current instruction
+  logic        tmp_regc_used,             // rs3 is used by current instruction
+  mul_opcode_e tmp_mult_operator,         // Multiplication operation selection
+  logic        tmp_mult_int_en,           // perform integer multiplication
+  logic [0:0]  tmp_mult_imm_mux,          // Multiplication immediate mux selector
+  logic [1:0]  tmp_mult_signed_mode      // Multiplication in signed mode
 
   ///////////////////////////////// BE generation ////////////////////////////////
   always_comb begin
@@ -596,6 +613,15 @@ always_comb begin
   tmp_imm_a_mux_sel             = IMMA_ZERO;
   tmp_imm_b_mux_sel             = IMMB_I;
   tmp_regfile_alu_we            = 1'b0;
+
+  tmp_rega_used                 = 1'b0;
+  tmp_regb_used                 = 1'b0;
+  tmp_regc_used                 = 1'b0;
+  tmp_mult_operator             = MUL_I;
+  tmp_mult_int_en                 = 1'b0;
+  tmp_mult_imm_mux              = MIMM_ZERO;
+  tmp_mult_signed_mode          = 2'b00;
+
   cstm_control_signals_valid    = 1'b0;
   cstm_instruction_checked      = 1'b0;
   cstm_fault_detected           = 1'b0;
@@ -660,94 +686,91 @@ always_comb begin
 
       // PREFIX 00/01
       else begin
-        // TODO:
-        // Check for these signals when they are forwarded. They are the
-        // MULT extension of riscv
-
         // non bit-manipulation instructions
-        // regfile_alu_we = 1'b1;
-        // rega_used_o    = 1'b1;
+        tmp_regfile_alu_we = 1'b1;
+        tmp_rega_used    = 1'b1;
 
-        // if (~cstm_instr_data_i[28]) regb_used_o = 1'b1;
+        if (~cstm_instr_data_i[28]) tmp_regb_used = 1'b1;
 
-        // unique case ({cstm_instr_data_i[30:25], cstm_instr_data_i[14:12]})
-        //   // RV32I ALU operations
-        //   {6'b00_0000, 3'b000}: alu_operator_o = ALU_ADD;   // Add
-        //   {6'b10_0000, 3'b000}: alu_operator_o = ALU_SUB;   // Sub
-        //   {6'b00_0000, 3'b010}: alu_operator_o = ALU_SLTS;  // Set Lower Than
-        //   {6'b00_0000, 3'b011}: alu_operator_o = ALU_SLTU;  // Set Lower Than Unsigned
-        //   {6'b00_0000, 3'b100}: alu_operator_o = ALU_XOR;   // Xor
-        //   {6'b00_0000, 3'b110}: alu_operator_o = ALU_OR;    // Or
-        //   {6'b00_0000, 3'b111}: alu_operator_o = ALU_AND;   // And
-        //   {6'b00_0000, 3'b001}: alu_operator_o = ALU_SLL;   // Shift Left Logical
-        //   {6'b00_0000, 3'b101}: alu_operator_o = ALU_SRL;   // Shift Right Logical
-        //   {6'b10_0000, 3'b101}: alu_operator_o = ALU_SRA;   // Shift Right Arithmetic
+        unique case ({cstm_instr_data_i[30:25], cstm_instr_data_i[14:12]})
+          // RV32I ALU operations
+          {6'b00_0000, 3'b000}: tmp_alu_operator = ALU_ADD;   // Add
+          {6'b10_0000, 3'b000}: tmp_alu_operator = ALU_SUB;   // Sub
+          {6'b00_0000, 3'b010}: tmp_alu_operator = ALU_SLTS;  // Set Lower Than
+          {6'b00_0000, 3'b011}: tmp_alu_operator = ALU_SLTU;  // Set Lower Than Unsigned
+          {6'b00_0000, 3'b100}: tmp_alu_operator = ALU_XOR;   // Xor
+          {6'b00_0000, 3'b110}: tmp_alu_operator = ALU_OR;    // Or
+          {6'b00_0000, 3'b111}: tmp_alu_operator = ALU_AND;   // And
+          {6'b00_0000, 3'b001}: tmp_alu_operator = ALU_SLL;   // Shift Left Logical
+          {6'b00_0000, 3'b101}: tmp_alu_operator = ALU_SRL;   // Shift Right Logical
+          {6'b10_0000, 3'b101}: tmp_alu_operator = ALU_SRA;   // Shift Right Arithmetic
 
-        //   // supported RV32M instructions
-        //   {6'b00_0001, 3'b000}: begin // mul
-        //     alu_en          = 1'b0;
-        //     mult_int_en     = 1'b1;
-        //     mult_operator_o = MUL_MAC32;
-        //     regc_mux_o      = REGC_ZERO;
-        //   end
-        //   {6'b00_0001, 3'b001}: begin // mulh
-        //     alu_en             = 1'b0;
-        //     regc_used_o        = 1'b1;
-        //     regc_mux_o         = REGC_ZERO;
-        //     mult_signed_mode_o = 2'b11;
-        //     mult_int_en        = 1'b1;
-        //     mult_operator_o    = MUL_H;
-        //   end
-        //   {6'b00_0001, 3'b010}: begin // mulhsu
-        //     alu_en             = 1'b0;
-        //     regc_used_o        = 1'b1;
-        //     regc_mux_o         = REGC_ZERO;
-        //     mult_signed_mode_o = 2'b01;
-        //     mult_int_en        = 1'b1;
-        //     mult_operator_o    = MUL_H;
-        //   end
-        //   {6'b00_0001, 3'b011}: begin // mulhu
-        //     alu_en             = 1'b0;
-        //     regc_used_o        = 1'b1;
-        //     regc_mux_o         = REGC_ZERO;
-        //     mult_signed_mode_o = 2'b00;
-        //     mult_int_en        = 1'b1;
-        //     mult_operator_o    = MUL_H;
-        //   end
-        //   {6'b00_0001, 3'b100}: begin // div
-        //     alu_op_a_mux_sel_o = OP_A_REGB_OR_FWD;
-        //     alu_op_b_mux_sel_o = OP_B_REGA_OR_FWD;
-        //     regb_used_o        = 1'b1;
-        //     alu_operator_o     = ALU_DIV;
-        //   end
-        //   {6'b00_0001, 3'b101}: begin // divu
-        //     alu_op_a_mux_sel_o = OP_A_REGB_OR_FWD;
-        //     alu_op_b_mux_sel_o = OP_B_REGA_OR_FWD;
-        //     regb_used_o        = 1'b1;
-        //     alu_operator_o     = ALU_DIVU;
-        //   end
-        //   {6'b00_0001, 3'b110}: begin // rem
-        //     alu_op_a_mux_sel_o = OP_A_REGB_OR_FWD;
-        //     alu_op_b_mux_sel_o = OP_B_REGA_OR_FWD;
-        //     regb_used_o        = 1'b1;
-        //     alu_operator_o     = ALU_REM;
-        //   end
-        //   {6'b00_0001, 3'b111}: begin // remu
-        //     alu_op_a_mux_sel_o = OP_A_REGB_OR_FWD;
-        //     alu_op_b_mux_sel_o = OP_B_REGA_OR_FWD;
-        //     regb_used_o        = 1'b1;
-        //     alu_operator_o     = ALU_REMU;
-        //   end
+          // supported RV32M instructions
+          {6'b00_0001, 3'b000}: begin // mul
+            tmp_alu_en          = 1'b0;
+            tmp_mult_int_en     = 1'b1;
+            tmp_mult_operator = MUL_MAC32;
+            tmp_regc_mux      = REGC_ZERO;
+          end
+          {6'b00_0001, 3'b001}: begin // mulh
+            tmp_alu_en             = 1'b0;
+            tmp_regc_used        = 1'b1;
+            tmp_regc_mux         = REGC_ZERO;
+            tmp_mult_signed_mode = 2'b11;
+            tmp_mult_int_en        = 1'b1;
+            tmp_mult_operator    = MUL_H;
+          end
+          {6'b00_0001, 3'b010}: begin // mulhsu
+            tmp_alu_en             = 1'b0;
+            tmp_regc_used        = 1'b1;
+            tmp_regc_mux         = REGC_ZERO;
+            tmp_mult_signed_mode = 2'b01;
+            tmp_mult_int_en        = 1'b1;
+            tmp_mult_operator    = MUL_H;
+          end
+          {6'b00_0001, 3'b011}: begin // mulhu
+            tmp_alu_en             = 1'b0;
+            tmp_regc_used        = 1'b1;
+            tmp_regc_mux         = REGC_ZERO;
+            tmp_mult_signed_mode = 2'b00;
+            tmp_mult_int_en        = 1'b1;
+            tmp_mult_operator    = MUL_H;
+          end
+          {6'b00_0001, 3'b100}: begin // div
+            tmp_alu_op_a_mux_sel = OP_A_REGB_OR_FWD;
+            tmp_alu_op_b_mux_sel = OP_B_REGA_OR_FWD;
+            tmp_regb_used        = 1'b1;
+            tmp_alu_operator     = ALU_DIV;
+          end
+          {6'b00_0001, 3'b101}: begin // divu
+            tmp_alu_op_a_mux_sel = OP_A_REGB_OR_FWD;
+            tmp_alu_op_b_mux_sel = OP_B_REGA_OR_FWD;
+            tmp_regb_used        = 1'b1;
+            tmp_alu_operator     = ALU_DIVU;
+          end
+          {6'b00_0001, 3'b110}: begin // rem
+            tmp_alu_op_a_mux_sel = OP_A_REGB_OR_FWD;
+            tmp_alu_op_b_mux_sel = OP_B_REGA_OR_FWD;
+            tmp_regb_used        = 1'b1;
+            tmp_alu_operator     = ALU_REM;
+          end
+          {6'b00_0001, 3'b111}: begin // remu
+            tmp_alu_op_a_mux_sel = OP_A_REGB_OR_FWD;
+            tmp_alu_op_b_mux_sel = OP_B_REGA_OR_FWD;
+            tmp_regb_used        = 1'b1;
+            tmp_alu_operator     = ALU_REMU;
+          end
 
-        //   default: begin
-        //   end
-        // endcase
+          default: begin
+          end
+        endcase
       end
     end
     
   endcase
   
-  cstm_control_signals_valid = (tmp_alu_op_a_mux_sel == cstm_alu_op_a_mux_sel_i) && (tmp_alu_op_b_mux_sel == cstm_alu_op_b_mux_sel_i) && (tmp_imm_a_mux_sel == cstm_imm_a_mux_sel_i) && (tmp_imm_b_mux_sel == cstm_imm_b_mux_sel_i) && (tmp_alu_operator == cstm_alu_operator_i) && (tmp_regfile_alu_we == cstm_regfile_alu_we_i) && (tmp_regc_mux == cstm_regc_mux_i);
+
+  cstm_control_signals_valid = (tmp_alu_op_a_mux_sel == cstm_alu_op_a_mux_sel_i) && (tmp_alu_op_b_mux_sel == cstm_alu_op_b_mux_sel_i) && (tmp_imm_a_mux_sel == cstm_imm_a_mux_sel_i) && (tmp_imm_b_mux_sel == cstm_imm_b_mux_sel_i) && (tmp_alu_operator == cstm_alu_operator_i) && (tmp_regfile_alu_we == cstm_regfile_alu_we_i) && (tmp_regc_mux == cstm_regc_mux_i) && (tmp_rega_used == cstm_rega_used_i) && (tmp_regb_used == cstm_regb_used_i) && (tmp_regc_used == cstm_regc_used_i) && (tmp_mult_operator == cstm_mult_operator_i) && (tmp_mult_int_en == cstm_mult_int_en_i) && (tmp_mult_imm_mux == cstm_mult_imm_mux_i) && (tmp_mult_signed_mode == cstm_mult_signed_mode_i);
   cstm_fault_detected = cstm_instruction_checked & !cstm_control_signals_valid;
 end
 

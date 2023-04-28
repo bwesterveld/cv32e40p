@@ -385,6 +385,22 @@ module cv32e40p_core
   logic [3:0]  cstm_imm_b_mux_sel_wb;         // immediate selection for operand b
   logic [1:0]  cstm_regc_mux_wb;              // register c selection: S3, RD or 0
 
+  logic        cstm_rega_used_ex;             // rs1 is used by current instruction
+  logic        cstm_regb_used_ex;             // rs2 is used by current instruction
+  logic        cstm_regc_used_ex;             // rs3 is used by current instruction
+  mul_opcode_e cstm_mult_operator_ex;         // Multiplication operation selection
+  logic        cstm_mult_int_en_ex;           // perform integer multiplication
+  logic [0:0]  cstm_mult_imm_mux_ex;          // Multiplication immediate mux selector
+  logic [1:0]  cstm_mult_signed_mode_ex;      // Multiplication in signed mode
+
+  logic        cstm_rega_used_wb;             // rs1 is used by current instruction
+  logic        cstm_regb_used_wb;             // rs2 is used by current instruction
+  logic        cstm_regc_used_wb;             // rs3 is used by current instruction
+  mul_opcode_e cstm_mult_operator_wb;         // Multiplication operation selection
+  logic        cstm_mult_int_en_wb;           // perform integer multiplication
+  logic [0:0]  cstm_mult_imm_mux_wb;          // Multiplication immediate mux selector
+  logic [1:0]  cstm_mult_signed_mode_wb;      // Multiplication in signed mode
+
   // Mux selector for vectored IRQ PC
   assign m_exc_vec_pc_mux_id = (mtvec_mode == 2'b0) ? 5'h0 : exc_cause;
   assign u_exc_vec_pc_mux_id = (utvec_mode == 2'b0) ? 5'h0 : exc_cause;
@@ -908,12 +924,12 @@ module cv32e40p_core
       .cstm_alu_op_a_mux_sel_i (cstm_alu_op_a_mux_sel_ex),      // operand a selection: reg value, PC, immediate or zero
       .cstm_alu_op_b_mux_sel_i (cstm_alu_op_b_mux_sel_ex),      // operand b selection: reg value or immediate
       .cstm_alu_op_c_mux_sel_i (cstm_alu_op_c_mux_sel_ex),      // operand c selection: reg value or jump target
-      .cstm_alu_vec_mode_i (cstm_alu_vec_mode_ex),          // selects between 32 bit, 16 bit and 8 bit vectorial modes
-      .cstm_scalar_replication_i (cstm_scalar_replication_ex),    // scalar replication enable
+      .cstm_alu_vec_mode_i (cstm_alu_vec_mode_ex),              // selects between 32 bit, 16 bit and 8 bit vectorial modes
+      .cstm_scalar_replication_i (cstm_scalar_replication_ex),  // scalar replication enable
       .cstm_scalar_replication_c_i (cstm_scalar_replication_c_ex),  // scalar replication enable for operand C
-      .cstm_imm_a_mux_sel_i (cstm_imm_a_mux_sel_ex),         // immediate selection for operand a
-      .cstm_imm_b_mux_sel_i (cstm_imm_b_mux_sel_ex),         // immediate selection for operand b
-      .cstm_regc_mux_i (cstm_regc_mux_ex),              // register c selection: S3, RD or 0
+      .cstm_imm_a_mux_sel_i (cstm_imm_a_mux_sel_ex),            // immediate selection for operand a
+      .cstm_imm_b_mux_sel_i (cstm_imm_b_mux_sel_ex),            // immediate selection for operand b
+      .cstm_regc_mux_i (cstm_regc_mux_ex),                      // register c selection: S3, RD or 0
 
       .cstm_alu_operator_o (cstm_alu_operator_wb),
       .cstm_alu_en_o (cstm_alu_en_wb),
@@ -921,12 +937,28 @@ module cv32e40p_core
       .cstm_alu_op_a_mux_sel_o (cstm_alu_op_a_mux_sel_wb),      // operand a selection: reg value, PC, immediate or zero
       .cstm_alu_op_b_mux_sel_o (cstm_alu_op_b_mux_sel_wb),      // operand b selection: reg value or immediate
       .cstm_alu_op_c_mux_sel_o (cstm_alu_op_c_mux_sel_wb),      // operand c selection: reg value or jump target
-      .cstm_alu_vec_mode_o (cstm_alu_vec_mode_wb),          // selects between 32 bit, 16 bit and 8 bit vectorial modes
-      .cstm_scalar_replication_o (cstm_scalar_replication_wb),    // scalar replication enable
+      .cstm_alu_vec_mode_o (cstm_alu_vec_mode_wb),              // selects between 32 bit, 16 bit and 8 bit vectorial modes
+      .cstm_scalar_replication_o (cstm_scalar_replication_wb),  // scalar replication enable
       .cstm_scalar_replication_c_o (cstm_scalar_replication_c_wb),  // scalar replication enable for operand C
-      .cstm_imm_a_mux_sel_o (cstm_imm_a_mux_sel_wb),         // immediate selection for operand a
-      .cstm_imm_b_mux_sel_o (cstm_imm_b_mux_sel_wb),         // immediate selection for operand b
-      .cstm_regc_mux_o (cstm_regc_mux_wb)              // register c selection: S3, RD or 0
+      .cstm_imm_a_mux_sel_o (cstm_imm_a_mux_sel_wb),            // immediate selection for operand a
+      .cstm_imm_b_mux_sel_o (cstm_imm_b_mux_sel_wb),            // immediate selection for operand b
+      .cstm_regc_mux_o (cstm_regc_mux_wb),                       // register c selection: S3, RD or 0
+
+      .cstm_rega_used_i (cstm_rega_used_ex),
+      .cstm_regb_used_i (cstm_regb_used_ex),
+      .cstm_regc_used_i (cstm_regc_used_ex),
+      .cstm_mult_operator_i (cstm_mult_operator_ex),
+      .cstm_mult_int_en_i (cstm_mult_int_en_ex),
+      .cstm_mult_imm_mux_i (cstm_mult_imm_mux_ex),
+      .cstm_mult_signed_mode_i (cstm_mult_signed_mode_ex),
+
+      .cstm_rega_used_o (cstm_rega_used_wb),
+      .cstm_regb_used_o (cstm_regb_used_wb),
+      .cstm_regc_used_o (cstm_regc_used_wb),
+      .cstm_mult_operator_o (cstm_mult_operator_wb),
+      .cstm_mult_int_en_o (cstm_mult_int_en_wb),
+      .cstm_mult_imm_mux_o (cstm_mult_imm_mux_wb),
+      .cstm_mult_signed_mode_o (cstm_mult_signed_mode_wb)
   );
 
 
@@ -1000,7 +1032,15 @@ module cv32e40p_core
       .cstm_scalar_replication_c_i (cstm_scalar_replication_c_wb),  // scalar replication enable for operand C
       .cstm_imm_a_mux_sel_i (cstm_imm_a_mux_sel_wb),         // immediate selection for operand a
       .cstm_imm_b_mux_sel_i (cstm_imm_b_mux_sel_wb),         // immediate selection for operand b
-      .cstm_regc_mux_i (cstm_regc_mux_wb)              // register c selection: S3, RD or 0
+      .cstm_regc_mux_i (cstm_regc_mux_wb),              // register c selection: S3, RD or 0
+
+      .cstm_rega_used_i (cstm_rega_used_wb),
+      .cstm_regb_used_i (cstm_regb_used_wb),
+      .cstm_regc_used_i (cstm_regc_used_wb),
+      .cstm_mult_operator_i (cstm_mult_operator_wb),
+      .cstm_mult_int_en_i (cstm_mult_int_en_wb),
+      .cstm_mult_imm_mux_i (cstm_mult_imm_mux_wb),
+      .cstm_mult_signed_mode_i (cstm_mult_signed_mode_wb)
   );
 
   // Tracer signal
