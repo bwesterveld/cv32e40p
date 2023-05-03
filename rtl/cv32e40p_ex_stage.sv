@@ -183,7 +183,7 @@ module cv32e40p_ex_stage import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*
     input mul_opcode_e cstm_mult_operator_i,         // Multiplication operation selection
     input logic        cstm_mult_int_en_i,           // perform integer multiplication
     input logic [0:0]  cstm_mult_imm_mux_i,          // Multiplication immediate mux selector
-    input logic [1:0]  cstm_mult_signed_mode_i      // Multiplication in signed mode
+    input logic [1:0]  cstm_mult_signed_mode_i,      // Multiplication in signed mode
 
     output logic        cstm_rega_used_o,             // rs1 is used by current instruction
     output logic        cstm_regb_used_o,             // rs2 is used by current instruction
