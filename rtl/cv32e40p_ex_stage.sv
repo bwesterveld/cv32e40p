@@ -441,13 +441,13 @@ module cv32e40p_ex_stage import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*
         cstm_regc_mux_o <= cstm_regc_mux_i;
 
         // ALU Mult
-        cstm_rega_used_o <= cstm_rega_used_o;
-        cstm_regb_used_o <= cstm_regb_used_o;
-        cstm_regc_used_o <= cstm_regc_used_o;
-        cstm_mult_operator_o <= cstm_mult_operator_o;
-        cstm_mult_int_en_o <= cstm_mult_int_en_o;
-        cstm_mult_imm_mux_o <= cstm_mult_imm_mux_o;
-        cstm_mult_signed_mode_o <= cstm_mult_signed_mode_o;
+        cstm_rega_used_o <= cstm_rega_used_i;
+        cstm_regb_used_o <= cstm_regb_used_i;
+        cstm_regc_used_o <= cstm_regc_used_i;
+        cstm_mult_operator_o <= cstm_mult_operator_i;
+        cstm_mult_int_en_o <= cstm_mult_int_en_i;
+        cstm_mult_imm_mux_o <= cstm_mult_imm_mux_i;
+        cstm_mult_signed_mode_o <= cstm_mult_signed_mode_i;
 
       end else if (wb_ready_i) begin
         // we are ready for a new instruction, but there is none available,
