@@ -156,16 +156,16 @@ module cv32e40p_load_store_unit import cv32e40p_pkg::*; import cv32e40p_apu_core
   logic        tmp_scalar_replication_c;  // scalar replication enable for operand C
   logic [0:0]  tmp_imm_a_mux_sel;         // immediate selection for operand a
   logic [3:0]  tmp_imm_b_mux_sel;         // immediate selection for operand b
-  logic [1:0]  tmp_regc_mux;             // register c selection: S3, RD or 0
+  logic [1:0]  tmp_regc_mux;              // register c selection: S3, RD or 0
 
   // ALU RV32IM Multiplication extension
-  logic        tmp_rega_used,             // rs1 is used by current instruction
-  logic        tmp_regb_used,             // rs2 is used by current instruction
-  logic        tmp_regc_used,             // rs3 is used by current instruction
-  mul_opcode_e tmp_mult_operator,         // Multiplication operation selection
-  logic        tmp_mult_int_en,           // perform integer multiplication
-  logic [0:0]  tmp_mult_imm_mux,          // Multiplication immediate mux selector
-  logic [1:0]  tmp_mult_signed_mode      // Multiplication in signed mode
+  logic        tmp_rega_used;             // rs1 is used by current instruction
+  logic        tmp_regb_used;             // rs2 is used by current instruction
+  logic        tmp_regc_used;             // rs3 is used by current instruction
+  mul_opcode_e tmp_mult_operator;         // Multiplication operation selection
+  logic        tmp_mult_int_en;           // perform integer multiplication
+  logic [0:0]  tmp_mult_imm_mux;          // Multiplication immediate mux selector
+  logic [1:0]  tmp_mult_signed_mode;      // Multiplication in signed mode
 
   ///////////////////////////////// BE generation ////////////////////////////////
   always_comb begin
