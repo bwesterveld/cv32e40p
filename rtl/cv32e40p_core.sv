@@ -786,7 +786,17 @@ module cv32e40p_core
       .cstm_scalar_replication_c_o (cstm_scalar_replication_c_ex),  // scalar replication enable for operand C
       .cstm_imm_a_mux_sel_o (cstm_imm_a_mux_sel_ex),         // immediate selection for operand a
       .cstm_imm_b_mux_sel_o (cstm_imm_b_mux_sel_ex),         // immediate selection for operand b
-      .cstm_regc_mux_o (cstm_regc_mux_ex)              // register c selection: S3, RD or 0
+      .cstm_regc_mux_o (cstm_regc_mux_ex),              // register c selection: S3, RD or 0
+
+      // todo: forward custom signals regaused
+      .cstm_rega_used_o (cstm_rega_used_ex),             // rs1 is used by current instruction
+      .cstm_regb_used_o (cstm_regb_used_ex),             // rs2 is used by current instruction
+      .cstm_regc_used_o (cstm_regc_used_ex),             // rs3 is used by current instruction
+      .cstm_mult_operator_o (cstm_mult_operator_ex),         // Multiplication operation selection
+      .cstm_mult_int_en_o (cstm_mult_int_en_ex),           // perform integer multiplication
+      .cstm_mult_imm_mux_o (cstm_mult_imm_mux_ex),          // Multiplication immediate mux selector
+      .cstm_mult_signed_mode_o (cstm_mult_signed_mode_ex)      // Multiplication in signed mode
+
   );
 
 
