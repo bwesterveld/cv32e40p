@@ -409,7 +409,7 @@ module cv32e40p_ex_stage import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*
       cstm_regb_used_o                 = 1'b0;
       cstm_regc_used_o                 = 1'b0;
       cstm_mult_operator_o             = MUL_I;
-      cstm_mult_int_en                 = 1'b0;
+      cstm_mult_int_en_o               = 1'b0;
       cstm_mult_imm_mux_o              = MIMM_ZERO;
       cstm_mult_signed_mode_o          = 2'b00;
 
