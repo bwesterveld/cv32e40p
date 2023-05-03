@@ -689,6 +689,7 @@ always_comb begin
         // non bit-manipulation instructions
         tmp_regfile_alu_we = 1'b1;
         tmp_rega_used    = 1'b1;
+        cstm_instruction_checked = 1'b1;
 
         if (~cstm_instr_data_i[28]) tmp_regb_used = 1'b1;
 
