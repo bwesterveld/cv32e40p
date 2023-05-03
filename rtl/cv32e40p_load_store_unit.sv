@@ -85,7 +85,7 @@ module cv32e40p_load_store_unit import cv32e40p_pkg::*; import cv32e40p_apu_core
     input logic        cstm_scalar_replication_c_i,  // scalar replication enable for operand C
     input logic [0:0]  cstm_imm_a_mux_sel_i,         // immediate selection for operand a
     input logic [3:0]  cstm_imm_b_mux_sel_i,         // immediate selection for operand b
-    input logic [1:0]  cstm_regc_mux_i              // register c selection: S3, RD or 0
+    input logic [1:0]  cstm_regc_mux_i,              // register c selection: S3, RD or 0
 
     // ALU RV32IM Multiplication extension
     input logic        cstm_rega_used_i,             // rs1 is used by current instruction
