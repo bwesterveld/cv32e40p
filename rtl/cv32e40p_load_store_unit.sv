@@ -651,6 +651,7 @@ always_comb begin
       tmp_imm_b_mux_sel        = IMMB_I;
       tmp_regfile_alu_we       = 1'b1;
       cstm_instruction_checked = 1'b1;
+      tmp_rega_used         = 1'b1;
 
       unique case (cstm_instr_data_i[14:12])
         3'b000: tmp_alu_operator = ALU_ADD;  // Add Immediate
