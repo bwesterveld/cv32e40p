@@ -154,7 +154,7 @@ module cv32e40p_ex_stage import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*
     output logic [31:0] cstm_instr_data_o,
 
     input logic        cstm_alu_en_i,
-    input logic        cstm_alu_operator_i,
+    input alu_opcode_e cstm_alu_operator_i,
     input logic        cstm_regfile_alu_we_i,
     input logic [2:0]  cstm_alu_op_a_mux_sel_i,      // operand a selection: reg value, PC, immediate or zero
     input logic [2:0]  cstm_alu_op_b_mux_sel_i,      // operand b selection: reg value or immediate
