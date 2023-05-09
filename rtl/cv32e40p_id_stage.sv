@@ -1424,6 +1424,26 @@ module cv32e40p_id_stage
       if (id_valid_o) begin  // unstall the whole pipeline
         alu_en_ex_o <= alu_en;
         cstm_instr_data_o <= instr;
+
+        // Forward the control signals, not just the selected operands
+        cstm_alu_op_a_mux_sel_o     <= alu_op_a_mux_sel;      // operand a selection: reg value, PC, immediate or zero
+        cstm_alu_op_b_mux_sel_o     <= alu_op_b_mux_sel;      // operand b selection: reg value or immediate
+        cstm_alu_op_c_mux_sel_o     <= alu_op_c_mux_sel;      // operand c selection: reg value or jump target
+        cstm_alu_vec_mode_o         <= alu_vec_mode;          // selects between 32 bit, 16 bit and 8 bit vectorial modes
+        cstm_scalar_replication_o   <= scalar_replication;    // scalar replication enable
+        cstm_scalar_replication_c_o <= scalar_replication_c;  // scalar replication enable for operand C
+        cstm_imm_a_mux_sel_o        <= imm_a_mux_sel;         // immediate selection for operand a
+        cstm_imm_b_mux_sel_o        <= imm_b_mux_sel;         // immediate selection for operand b
+        cstm_regc_mux_o             <= regc_mux;              // register c selection: S3, RD or 0
+
+        cstm_rega_used_o            <= rega_used_dec;
+        cstm_regb_used_o            <= regb_used_dec;
+        cstm_regc_used_o            <= regc_used_dec;
+        cstm_mult_operator_o        <= mult_operator;
+        cstm_mult_int_en_o          <= mult_int_en;
+        cstm_mult_imm_mux_o         <= mult_imm_mux;
+        cstm_mult_signed_mode_o     <= mult_signed_mode;
+
         if (alu_en) begin
           alu_operator_ex_o   <= alu_operator;
           alu_operand_a_ex_o  <= alu_operand_a;
@@ -1436,26 +1456,6 @@ module cv32e40p_id_stage
           alu_is_clpx_ex_o    <= is_clpx;
           alu_clpx_shift_ex_o <= instr[14:13];
           alu_is_subrot_ex_o  <= is_subrot;
-
-          // Forward the control signals, not just the selected operands
-          cstm_alu_op_a_mux_sel_o     <= alu_op_a_mux_sel;      // operand a selection: reg value, PC, immediate or zero
-          cstm_alu_op_b_mux_sel_o     <= alu_op_b_mux_sel;      // operand b selection: reg value or immediate
-          cstm_alu_op_c_mux_sel_o     <= alu_op_c_mux_sel;      // operand c selection: reg value or jump target
-          cstm_alu_vec_mode_o         <= alu_vec_mode;          // selects between 32 bit, 16 bit and 8 bit vectorial modes
-          cstm_scalar_replication_o   <= scalar_replication;    // scalar replication enable
-          cstm_scalar_replication_c_o <= scalar_replication_c;  // scalar replication enable for operand C
-          cstm_imm_a_mux_sel_o        <= imm_a_mux_sel;         // immediate selection for operand a
-          cstm_imm_b_mux_sel_o        <= imm_b_mux_sel;         // immediate selection for operand b
-          cstm_regc_mux_o             <= regc_mux;              // register c selection: S3, RD or 0
-
-          cstm_rega_used_o            <= rega_used_dec;
-          cstm_regb_used_o            <= regb_used_dec;
-          cstm_regc_used_o            <= regc_used_dec;
-          cstm_mult_operator_o        <= mult_operator;
-          cstm_mult_int_en_o          <= mult_int_en;
-          cstm_mult_imm_mux_o         <= mult_imm_mux;
-          cstm_mult_signed_mode_o     <= mult_signed_mode;
-
         end
 
         mult_en_ex_o <= mult_en;
