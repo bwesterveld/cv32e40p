@@ -153,6 +153,9 @@ module cv32e40p_ex_stage import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*
     input logic [31:0] cstm_instr_data_i,
     output logic [31:0] cstm_instr_data_o,
 
+    input logic        cstm_alu_en_i,
+    input logic        cstm_alu_operator_i,
+    input logic        cstm_regfile_alu_we_i,
     input logic [2:0]  cstm_alu_op_a_mux_sel_i,      // operand a selection: reg value, PC, immediate or zero
     input logic [2:0]  cstm_alu_op_b_mux_sel_i,      // operand b selection: reg value or immediate
     input logic [1:0]  cstm_alu_op_c_mux_sel_i,      // operand c selection: reg value or jump target
@@ -427,9 +430,9 @@ module cv32e40p_ex_stage import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*
         cstm_instr_data_o <= cstm_instr_data_i;
 
         // ALU
-        cstm_alu_operator_o <= alu_operator_i;
-        cstm_alu_en_o <= alu_en_i;
-        cstm_regfile_alu_we_o <= regfile_alu_we_i;
+        cstm_alu_operator_o <= cstm_alu_operator_i;
+        cstm_alu_en_o <= cstm_alu_en_i;
+        cstm_regfile_alu_we_o <= cstm_regfile_alu_we_i;
         cstm_alu_op_a_mux_sel_o <= cstm_alu_op_a_mux_sel_i;
         cstm_alu_op_b_mux_sel_o <= cstm_alu_op_b_mux_sel_i;
         cstm_alu_op_c_mux_sel_o <= cstm_alu_op_c_mux_sel_i;

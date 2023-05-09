@@ -252,6 +252,9 @@ module cv32e40p_id_stage
 
     // Custom countermeasure signals
     // ALU RV32I
+    output logic cstm_alu_en_o,
+    output logic cstm_alu_operator_o,
+    output logic cstm_regfile_alu_we_o,
     output logic [31:0] cstm_instr_data_o,
     output logic [2:0]  cstm_alu_op_a_mux_sel_o,      // operand a selection: reg value, PC, immediate or zero
     output logic [2:0]  cstm_alu_op_b_mux_sel_o,      // operand b selection: reg value or immediate
@@ -1426,6 +1429,9 @@ module cv32e40p_id_stage
         cstm_instr_data_o <= instr;
 
         // Forward the control signals, not just the selected operands
+        cstm_alu_en_ex              <= alu_en;
+        cstm_alu_operator_ex        <= alu_operator;
+        cstm_regfile_alu_we_ex      <= regfile_alu_we_ex;
         cstm_alu_op_a_mux_sel_o     <= alu_op_a_mux_sel;      // operand a selection: reg value, PC, immediate or zero
         cstm_alu_op_b_mux_sel_o     <= alu_op_b_mux_sel;      // operand b selection: reg value or immediate
         cstm_alu_op_c_mux_sel_o     <= alu_op_c_mux_sel;      // operand c selection: reg value or jump target

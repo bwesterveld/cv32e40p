@@ -361,6 +361,12 @@ module cv32e40p_core
   logic [31:0]                    cstm_instr_data_wb;
 
   // Custom countermeasure signals ALU
+  // TODO: These signals should also be custom for the ex stage. Currently not
+  //       updated if not used. Leads to failing checks.
+  logic               cstm_alu_en_ex;
+  alu_opcode_e        cstm_alu_operator_ex;
+  logic               cstm_regfile_alu_we_ex;
+
   logic               cstm_alu_en_wb;
   alu_opcode_e        cstm_alu_operator_wb;
   logic               cstm_regfile_alu_we_wb;
@@ -778,6 +784,9 @@ module cv32e40p_core
       // Custom countermeasure signals
       .cstm_instr_data_o (cstm_instr_data_ex),
 
+      .cstm_alu_en_o (cstm_alu_en_ex),
+      .cstm_alu_operator_o (cstm_alu_operator_ex),
+      .cstm_regfile_alu_we_o (cstm_regfile_alu_we_ex),
       .cstm_alu_op_a_mux_sel_o (cstm_alu_op_a_mux_sel_ex),      // operand a selection: reg value, PC, immediate or zero
       .cstm_alu_op_b_mux_sel_o (cstm_alu_op_b_mux_sel_ex),      // operand b selection: reg value or immediate
       .cstm_alu_op_c_mux_sel_o (cstm_alu_op_c_mux_sel_ex),      // operand c selection: reg value or jump target
@@ -940,6 +949,9 @@ module cv32e40p_core
       .cstm_imm_a_mux_sel_i (cstm_imm_a_mux_sel_ex),            // immediate selection for operand a
       .cstm_imm_b_mux_sel_i (cstm_imm_b_mux_sel_ex),            // immediate selection for operand b
       .cstm_regc_mux_i (cstm_regc_mux_ex),                      // register c selection: S3, RD or 0
+      .cstm_alu_en_i (cstm_alu_en_ex),
+      .cstm_alu_operator_i (cstm_alu_operator_ex),
+      .cstm_regfile_alu_we_i (cstm_regfile_alu_we_ex),
 
       .cstm_alu_operator_o (cstm_alu_operator_wb),
       .cstm_alu_en_o (cstm_alu_en_wb),
