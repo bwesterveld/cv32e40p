@@ -506,6 +506,8 @@ module cv32e40p_id_stage
   logic minstret;
   logic perf_pipeline_stall;
 
+  logic cstm_instr_reconstructable;
+
   assign instr = instr_rdata_i;
 
 
@@ -1088,7 +1090,7 @@ module cv32e40p_id_stage
 
       // HPM related control signals
       .mcounteren_i(mcounteren_i),
-      .cstm_instr_reconstructable_o (cstm_instr_reconstructable_o)
+      .cstm_instr_reconstructable_o (cstm_instr_reconstructable)
   );
 
   ////////////////////////////////////////////////////////////////////
@@ -1428,6 +1430,7 @@ module cv32e40p_id_stage
       if (id_valid_o) begin  // unstall the whole pipeline
         alu_en_ex_o <= alu_en;
         cstm_instr_data_o <= instr;
+        cstm_instr_reconstructable_o <= cstm_instr_reconstructable;
 
         // Forward the control signals, not just the selected operands
         cstm_alu_en_o               <= alu_en;
