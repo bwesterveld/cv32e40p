@@ -407,6 +407,9 @@ module cv32e40p_core
   logic [0:0]  cstm_mult_imm_mux_wb;          // Multiplication immediate mux selector
   logic [1:0]  cstm_mult_signed_mode_wb;      // Multiplication in signed mode
 
+  logic cstm_instr_reconstructable_ex;
+  logic cstm_instr_reconstructable_wb;
+
   // Mux selector for vectored IRQ PC
   assign m_exc_vec_pc_mux_id = (mtvec_mode == 2'b0) ? 5'h0 : exc_cause;
   assign u_exc_vec_pc_mux_id = (utvec_mode == 2'b0) ? 5'h0 : exc_cause;
@@ -804,8 +807,8 @@ module cv32e40p_core
       .cstm_mult_operator_o (cstm_mult_operator_ex),         // Multiplication operation selection
       .cstm_mult_int_en_o (cstm_mult_int_en_ex),           // perform integer multiplication
       .cstm_mult_imm_mux_o (cstm_mult_imm_mux_ex),          // Multiplication immediate mux selector
-      .cstm_mult_signed_mode_o (cstm_mult_signed_mode_ex)      // Multiplication in signed mode
-
+      .cstm_mult_signed_mode_o (cstm_mult_signed_mode_ex),      // Multiplication in signed mode
+      .cstm_instr_reconstructable_o (cstm_instr_reconstructable_ex)
   );
 
 
@@ -980,7 +983,10 @@ module cv32e40p_core
       .cstm_mult_operator_o (cstm_mult_operator_wb),
       .cstm_mult_int_en_o (cstm_mult_int_en_wb),
       .cstm_mult_imm_mux_o (cstm_mult_imm_mux_wb),
-      .cstm_mult_signed_mode_o (cstm_mult_signed_mode_wb)
+      .cstm_mult_signed_mode_o (cstm_mult_signed_mode_wb),
+
+      .cstm_instr_reconstructable_i (cstm_instr_reconstructable_ex),
+      .cstm_instr_reconstructable_o (cstm_instr_reconstructable_wb)
   );
 
 
@@ -1062,7 +1068,9 @@ module cv32e40p_core
       .cstm_mult_operator_i (cstm_mult_operator_wb),
       .cstm_mult_int_en_i (cstm_mult_int_en_wb),
       .cstm_mult_imm_mux_i (cstm_mult_imm_mux_wb),
-      .cstm_mult_signed_mode_i (cstm_mult_signed_mode_wb)
+      .cstm_mult_signed_mode_i (cstm_mult_signed_mode_wb),
+
+      .cstm_instr_reconstructable_i (cstm_instr_reconstructable_wb)
   );
 
   // Tracer signal

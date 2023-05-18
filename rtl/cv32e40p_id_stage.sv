@@ -273,7 +273,8 @@ module cv32e40p_id_stage
     output mul_opcode_e cstm_mult_operator_o,         // Multiplication operation selection
     output logic        cstm_mult_int_en_o,           // perform integer multiplication
     output logic [0:0]  cstm_mult_imm_mux_o,          // Multiplication immediate mux selector
-    output logic [1:0]  cstm_mult_signed_mode_o      // Multiplication in signed mode
+    output logic [1:0]  cstm_mult_signed_mode_o,      // Multiplication in signed mode
+    output logic        cstm_instr_reconstructable_o
 );
 
   // Source/Destination register instruction index
@@ -1086,8 +1087,8 @@ module cv32e40p_id_stage
       .ctrl_transfer_target_mux_sel_o(ctrl_transfer_target_mux_sel),
 
       // HPM related control signals
-      .mcounteren_i(mcounteren_i)
-      // .cstm_instr_data_o (cstm_instr_data_o)
+      .mcounteren_i(mcounteren_i),
+      .cstm_instr_reconstructable_o (cstm_instr_reconstructable_o)
   );
 
   ////////////////////////////////////////////////////////////////////

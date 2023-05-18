@@ -194,7 +194,10 @@ module cv32e40p_ex_stage import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*
     output mul_opcode_e cstm_mult_operator_o,         // Multiplication operation selection
     output logic        cstm_mult_int_en_o,           // perform integer multiplication
     output logic [0:0]  cstm_mult_imm_mux_o,          // Multiplication immediate mux selector
-    output logic [1:0]  cstm_mult_signed_mode_o      // Multiplication in signed mode
+    output logic [1:0]  cstm_mult_signed_mode_o,      // Multiplication in signed mode
+
+    input logic cstm_instr_reconstructable_i,
+    output logic cstm_instr_reconstructable_o
 
 );
 
@@ -416,6 +419,8 @@ module cv32e40p_ex_stage import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*
       cstm_mult_imm_mux_o              = MIMM_ZERO;
       cstm_mult_signed_mode_o          = 2'b00;
 
+      cstm_instr_reconstructable_o = 1'b0;
+
 
     end else begin
       if (ex_valid_o) // wb_ready_i is implied
@@ -451,6 +456,8 @@ module cv32e40p_ex_stage import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*
         cstm_mult_int_en_o <= cstm_mult_int_en_i;
         cstm_mult_imm_mux_o <= cstm_mult_imm_mux_i;
         cstm_mult_signed_mode_o <= cstm_mult_signed_mode_i;
+
+        cstm_instr_reconstructable_o <= cstm_instr_reconstructable_i;
 
       end else if (wb_ready_i) begin
         // we are ready for a new instruction, but there is none available,
