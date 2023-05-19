@@ -600,7 +600,7 @@ always_comb begin
     end
   endcase
 
-  cstm_fault_detected = cstm_instr_reconstructable_i && cstm_control_signals_checked && (cstm_opcode_rec != cstm_opcode_ref);
+  cstm_fault_detected = cstm_instr_reconstructable_i && (cstm_opcode_rec != cstm_opcode_ref);
 
 end
 
