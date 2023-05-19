@@ -585,6 +585,7 @@ module cv32e40p_load_store_unit import cv32e40p_pkg::*; import cv32e40p_apu_core
 always_comb begin
 
   cstm_opcode_ref = cstm_instr_data_i[6:0];
+  cstm_opcode_rec = 7'b0000000;
 
   case ({cstm_instr_reconstructable_i, cstm_alu_en_i, cstm_alu_operator_i, cstm_alu_op_a_mux_sel_i, cstm_alu_op_b_mux_sel_i, cstm_alu_op_c_mux_sel_i, cstm_alu_vec_mode_i, cstm_scalar_replication_i, cstm_scalar_replication_c_i, cstm_regc_mux_i, cstm_imm_a_mux_sel_i, cstm_imm_b_mux_sel_i, cstm_mult_operator_i, cstm_mult_int_en_i, cstm_mult_imm_mux_i, cstm_mult_signed_mode_i, cstm_regfile_alu_we_i, cstm_rega_used_i, cstm_regb_used_i, cstm_regc_used_i})
     // LUI
@@ -599,7 +600,7 @@ always_comb begin
     end
   endcase
 
-  cstm_fault_detected = cstm_instr_reconstructable_i && cstm_control_signals_checked && (cstm_opcode_rec == cstm_opcode_ref);
+  cstm_fault_detected = cstm_instr_reconstructable_i && cstm_control_signals_checked && (cstm_opcode_rec != cstm_opcode_ref);
 
 end
 
