@@ -296,7 +296,7 @@ module cv32e40p_load_store_unit import cv32e40p_pkg::*; import cv32e40p_apu_core
   always_comb begin
     case (rdata_offset_q)
       2'b00: begin
-        if (data_sign_ext_q cstm_opcode_ref== 2'b00) rdata_b_ext = {24'h00_0000, resp_rdata[7:0]};
+        if (data_sign_ext_q == 2'b00) rdata_b_ext = {24'h00_0000, resp_rdata[7:0]};
         else if (data_sign_ext_q == 2'b10) rdata_b_ext = {24'hff_ffff, resp_rdata[7:0]};
         else rdata_b_ext = {{24{resp_rdata[7]}}, resp_rdata[7:0]};
       end
@@ -601,9 +601,6 @@ always_comb begin
 
   cstm_fault_detected = cstm_instr_reconstructable && cstm_control_signals_checked && (cstm_opcode_rec == cstm_opcode_ref);
 
-  // //cstm_control_signals_valid = (tmp_alu_op_a_mux_sel == cstm_alu_op_a_mux_sel_i) && (tmp_alu_op_b_mux_sel == cstm_alu_op_b_mux_sel_i) && (tmp_imm_a_mux_sel == cstm_imm_a_mux_sel_i) && (tmp_imm_b_mux_sel == cstm_imm_b_mux_sel_i) && (tmp_alu_operator == cstm_alu_operator_i) && (tmp_regfile_alu_we == cstm_regfile_alu_we_i) && (tmp_regc_mux == cstm_regc_mux_i) && (tmp_rega_used == cstm_rega_used_i) && (tmp_regb_used == cstm_regb_used_i) && (tmp_regc_used == cstm_regc_used_i) && (tmp_mult_operator == cstm_mult_operator_i) && (tmp_mult_int_en == cstm_mult_int_en_i) && (tmp_mult_imm_mux == cstm_mult_imm_mux_i) && (tmp_mult_signed_mode == cstm_mult_signed_mode_i);
-  // cstm_control_signals_valid = (tmp_alu_op_a_mux_sel == cstm_alu_op_a_mux_sel_i) && (tmp_alu_op_b_mux_sel == cstm_alu_op_b_mux_sel_i) && (tmp_alu_op_c_mux_sel == cstm_alu_op_c_mux_sel_i) && (tmp_imm_a_mux_sel == cstm_imm_a_mux_sel_i) && (tmp_imm_b_mux_sel == cstm_imm_b_mux_sel_i) && (tmp_alu_operator == cstm_alu_operator_i) && (tmp_regfile_alu_we == cstm_regfile_alu_we_i) && (tmp_regc_mux == cstm_regc_mux_i) && (tmp_rega_used == cstm_rega_used_i) && (tmp_regb_used == cstm_regb_used_i) && (tmp_regc_used == cstm_regc_used_i && (tmp_mult_operator == cstm_mult_operator_i) && (tmp_mult_int_en == cstm_mult_int_en_i) && (tmp_mult_imm_mux == cstm_mult_imm_mux_i) && (tmp_mult_signed_mode == cstm_mult_signed_mode_i));
-  // cstm_fault_detected = cstm_instruction_checked & !cstm_control_signals_valid;
 end
 
 
