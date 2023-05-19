@@ -144,7 +144,8 @@ module cv32e40p_load_store_unit import cv32e40p_pkg::*; import cv32e40p_apu_core
   logic [31:0] rdata_q;
   
   // Signal to keep track of whether the control signals are valid
-  
+  logic cstm_control_signals_checked;
+
   ///////////////////////////////// BE generation ////////////////////////////////
   always_comb begin
     case (data_type_ex_i)  // Data type 00 Word, 01 Half word, 11,10 byte
@@ -579,11 +580,21 @@ module cv32e40p_load_store_unit import cv32e40p_pkg::*; import cv32e40p_apu_core
 
 
 always_comb begin
-  
+  case ({cstm_instr_reconstructable_i, cstm_alu_en_i, cstm_alu_operator_i, cstm_alu_op_a_mux_sel_i, cstm_alu_op_b_mux_sel_i, cstm_alu_op_c_mux_sel_i, cstm_alu_vec_mode_i, cstm_scalar_replication_i, cstm_scalar_replication_c_i, cstm_regc_mux_i, cstm_imm_a_mux_sel_i, cstm_imm_b_mux_sel_i, cstm_mult_operator_i, cstm_mult_int_en_i, cstm_mult_imm_mux_i, cstm_mult_signed_mode_i, cstm_regfile_alu_we_i, cstm_rega_used_i, cstm_regb_used_i, cstm_regc_used_i})
+    // LUI
+    33'b1100110000000000011100111000001000: begin
+      // Code for LUI
+      cstm_control_signals_checked = 1'b1;
+    end
 
-  //cstm_control_signals_valid = (tmp_alu_op_a_mux_sel == cstm_alu_op_a_mux_sel_i) && (tmp_alu_op_b_mux_sel == cstm_alu_op_b_mux_sel_i) && (tmp_imm_a_mux_sel == cstm_imm_a_mux_sel_i) && (tmp_imm_b_mux_sel == cstm_imm_b_mux_sel_i) && (tmp_alu_operator == cstm_alu_operator_i) && (tmp_regfile_alu_we == cstm_regfile_alu_we_i) && (tmp_regc_mux == cstm_regc_mux_i) && (tmp_rega_used == cstm_rega_used_i) && (tmp_regb_used == cstm_regb_used_i) && (tmp_regc_used == cstm_regc_used_i) && (tmp_mult_operator == cstm_mult_operator_i) && (tmp_mult_int_en == cstm_mult_int_en_i) && (tmp_mult_imm_mux == cstm_mult_imm_mux_i) && (tmp_mult_signed_mode == cstm_mult_signed_mode_i);
-  cstm_control_signals_valid = (tmp_alu_op_a_mux_sel == cstm_alu_op_a_mux_sel_i) && (tmp_alu_op_b_mux_sel == cstm_alu_op_b_mux_sel_i) && (tmp_alu_op_c_mux_sel == cstm_alu_op_c_mux_sel_i) && (tmp_imm_a_mux_sel == cstm_imm_a_mux_sel_i) && (tmp_imm_b_mux_sel == cstm_imm_b_mux_sel_i) && (tmp_alu_operator == cstm_alu_operator_i) && (tmp_regfile_alu_we == cstm_regfile_alu_we_i) && (tmp_regc_mux == cstm_regc_mux_i) && (tmp_rega_used == cstm_rega_used_i) && (tmp_regb_used == cstm_regb_used_i) && (tmp_regc_used == cstm_regc_used_i && (tmp_mult_operator == cstm_mult_operator_i) && (tmp_mult_int_en == cstm_mult_int_en_i) && (tmp_mult_imm_mux == cstm_mult_imm_mux_i) && (tmp_mult_signed_mode == cstm_mult_signed_mode_i));
-  cstm_fault_detected = cstm_instruction_checked & !cstm_control_signals_valid;
+    default: begin
+      cstm_control_signals_checked = 1'b0;
+    end
+  endcase
+
+  // //cstm_control_signals_valid = (tmp_alu_op_a_mux_sel == cstm_alu_op_a_mux_sel_i) && (tmp_alu_op_b_mux_sel == cstm_alu_op_b_mux_sel_i) && (tmp_imm_a_mux_sel == cstm_imm_a_mux_sel_i) && (tmp_imm_b_mux_sel == cstm_imm_b_mux_sel_i) && (tmp_alu_operator == cstm_alu_operator_i) && (tmp_regfile_alu_we == cstm_regfile_alu_we_i) && (tmp_regc_mux == cstm_regc_mux_i) && (tmp_rega_used == cstm_rega_used_i) && (tmp_regb_used == cstm_regb_used_i) && (tmp_regc_used == cstm_regc_used_i) && (tmp_mult_operator == cstm_mult_operator_i) && (tmp_mult_int_en == cstm_mult_int_en_i) && (tmp_mult_imm_mux == cstm_mult_imm_mux_i) && (tmp_mult_signed_mode == cstm_mult_signed_mode_i);
+  // cstm_control_signals_valid = (tmp_alu_op_a_mux_sel == cstm_alu_op_a_mux_sel_i) && (tmp_alu_op_b_mux_sel == cstm_alu_op_b_mux_sel_i) && (tmp_alu_op_c_mux_sel == cstm_alu_op_c_mux_sel_i) && (tmp_imm_a_mux_sel == cstm_imm_a_mux_sel_i) && (tmp_imm_b_mux_sel == cstm_imm_b_mux_sel_i) && (tmp_alu_operator == cstm_alu_operator_i) && (tmp_regfile_alu_we == cstm_regfile_alu_we_i) && (tmp_regc_mux == cstm_regc_mux_i) && (tmp_rega_used == cstm_rega_used_i) && (tmp_regb_used == cstm_regb_used_i) && (tmp_regc_used == cstm_regc_used_i && (tmp_mult_operator == cstm_mult_operator_i) && (tmp_mult_int_en == cstm_mult_int_en_i) && (tmp_mult_imm_mux == cstm_mult_imm_mux_i) && (tmp_mult_signed_mode == cstm_mult_signed_mode_i));
+  // cstm_fault_detected = cstm_instruction_checked & !cstm_control_signals_valid;
 end
 
 
