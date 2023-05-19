@@ -582,7 +582,7 @@ module cv32e40p_load_store_unit import cv32e40p_pkg::*; import cv32e40p_apu_core
 always_comb begin
   case ({cstm_instr_reconstructable_i, cstm_alu_en_i, cstm_alu_operator_i, cstm_alu_op_a_mux_sel_i, cstm_alu_op_b_mux_sel_i, cstm_alu_op_c_mux_sel_i, cstm_alu_vec_mode_i, cstm_scalar_replication_i, cstm_scalar_replication_c_i, cstm_regc_mux_i, cstm_imm_a_mux_sel_i, cstm_imm_b_mux_sel_i, cstm_mult_operator_i, cstm_mult_int_en_i, cstm_mult_imm_mux_i, cstm_mult_signed_mode_i, cstm_regfile_alu_we_i, cstm_rega_used_i, cstm_regb_used_i, cstm_regc_used_i})
     // LUI
-    33'b1100110000000000011100111000001000: begin
+    34'b1100110000000000011100111000001000: begin
       // Code for LUI
       cstm_control_signals_checked = 1'b1;
     end
