@@ -571,6 +571,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
       OPCODE_OP: begin  // Register-Register ALU operation
 
         // PREFIX 11
+        // This prefix is only used with extensions.
         if (instr_rdata_i[31:30] == 2'b11) begin
           begin
             illegal_insn_o = 1'b1;
@@ -578,6 +579,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
         end
 
         // PREFIX 10
+        // This prefix is only used with extensions.
         else if (instr_rdata_i[31:30] == 2'b10) begin
           //////////////////////////////
           // REGISTER BIT-MANIPULATION
