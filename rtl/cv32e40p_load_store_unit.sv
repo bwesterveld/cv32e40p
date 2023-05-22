@@ -146,12 +146,16 @@ module cv32e40p_load_store_unit import cv32e40p_pkg::*; import cv32e40p_apu_core
   // Signal to keep track of whether the control signals are valid
   logic cstm_opcode_checkable;
   logic cstm_funct3_checkable;
+  logic cstm_funct7_checkable;
 
   logic cstm_fault_detected;
   logic [6:0] cstm_opcode_ref;
   logic [6:0] cstm_opcode_rec;
+  
   logic [2:0] cstm_funct3_rec;
   logic [2:0] cstm_funct3_ref;
+  
+  logic [6:0] cstm_funct7_rec;
 
   ///////////////////////////////// BE generation ////////////////////////////////
   always_comb begin
@@ -589,12 +593,16 @@ module cv32e40p_load_store_unit import cv32e40p_pkg::*; import cv32e40p_apu_core
 always_comb begin
   cstm_opcode_checkable = 1'b0;
   cstm_funct3_checkable = 1'b0;
+  cstm_funct7_checkable = 1'b0;
 
   cstm_opcode_ref = cstm_instr_data_i[6:0];
   cstm_opcode_rec = 7'b0000000;
 
   cstm_funct3_ref = cstm_instr_data_i[14:12];
   cstm_funct3_rec = 3'b000;
+
+  cstm_funct7_ref = cstm_instr_data_i[31:25];
+  cstm_funct7_rec = 7'b0000000;
 
   cstm_fault_detected = 1'b0;
   case ({cstm_instr_reconstructable_i, cstm_alu_en_i, cstm_alu_operator_i, cstm_alu_op_a_mux_sel_i, cstm_alu_op_b_mux_sel_i, cstm_alu_op_c_mux_sel_i, cstm_alu_vec_mode_i, cstm_scalar_replication_i, cstm_scalar_replication_c_i, cstm_regc_mux_i, cstm_imm_a_mux_sel_i, cstm_imm_b_mux_sel_i, cstm_mult_operator_i, cstm_mult_int_en_i, cstm_mult_imm_mux_i, cstm_mult_signed_mode_i, cstm_regfile_alu_we_i, cstm_rega_used_i, cstm_regb_used_i, cstm_regc_used_i})
@@ -614,7 +622,7 @@ always_comb begin
     // OPIMM add immediate
     39'b110011000000010000000111000001000001100: begin
       cstm_opcode_checkable = 1'b1;
-      cstm_funct3_checkable = 1'b0;
+      cstm_funct3_checkable = 1'b1;
       cstm_opcode_rec = OPCODE_OPIMM;
       cstm_funct3_rec = 3'b000;
     end
@@ -622,7 +630,7 @@ always_comb begin
     // OPIMM set less than immediate
     39'b110000010000010000000111000001000001100: begin
       cstm_opcode_checkable = 1'b1;
-      cstm_funct3_checkable = 1'b0;
+      cstm_funct3_checkable = 1'b1;
       cstm_opcode_rec = OPCODE_OPIMM;
       cstm_funct3_rec = 3'b010;
     end
@@ -630,7 +638,7 @@ always_comb begin
     // OPIMM set less than immediate unsigned
     39'b110000011000010000000111000001000001100: begin
       cstm_opcode_checkable = 1'b1;
-      cstm_funct3_checkable = 1'b0;
+      cstm_funct3_checkable = 1'b1;
       cstm_opcode_rec = OPCODE_OPIMM;
       cstm_funct3_rec = 3'b011;
     end
@@ -638,7 +646,7 @@ always_comb begin
     // OPIMM xor
     39'b110101111000010000000111000001000001100: begin
       cstm_opcode_checkable = 1'b1;
-      cstm_funct3_checkable = 1'b0;
+      cstm_funct3_checkable = 1'b1;
       cstm_opcode_rec = OPCODE_OPIMM;
       cstm_funct3_rec = 3'b100;
     end
@@ -646,7 +654,7 @@ always_comb begin
     // OPIMM or
     39'b110101110000010000000111000001000001100: begin
       cstm_opcode_checkable = 1'b1;
-      cstm_funct3_checkable = 1'b0;
+      cstm_funct3_checkable = 1'b1;
       cstm_opcode_rec = OPCODE_OPIMM;
       cstm_funct3_rec = 3'b110;
     end
@@ -654,7 +662,7 @@ always_comb begin
     // OPIMM and
     39'b110010101000010000000111000001000001100: begin
       cstm_opcode_checkable = 1'b1;
-      cstm_funct3_checkable = 1'b0;
+      cstm_funct3_checkable = 1'b1;
       cstm_opcode_rec = OPCODE_OPIMM;
       cstm_funct3_rec = 3'b111;
     end
@@ -662,7 +670,7 @@ always_comb begin
     // OPIMM sll
     39'b110100111000010000000111000001000001100: begin
       cstm_opcode_checkable = 1'b1;
-      cstm_funct3_checkable = 1'b0;
+      cstm_funct3_checkable = 1'b1;
       cstm_opcode_rec = OPCODE_OPIMM;
       cstm_funct3_rec = 3'b001;
     end
@@ -670,21 +678,129 @@ always_comb begin
     // OPIMM srl
     39'b110100101000010000000111000001000001100: begin
       cstm_opcode_checkable = 1'b1;
-      cstm_funct3_checkable = 1'b0;
+      cstm_funct3_checkable = 1'b1;
       cstm_opcode_rec = OPCODE_OPIMM;
-      cstm_funct3_rec = 3'101;
+      cstm_funct3_rec = 3'b101;
     end
 
     // OPIMM sra (same funct3 as srl)
     39'b110100100000010000000111000001000001100: begin
       cstm_opcode_checkable = 1'b1;
-      cstm_funct3_checkable = 1'b0;
+      cstm_funct3_checkable = 1'b1;
       cstm_opcode_rec = OPCODE_OPIMM;
-      cstm_funct3_rec = 3'101;
+      cstm_funct3_rec = 3'b101;
     end
+
+
+    // OPOP add
+    39'b110011000000000000000111000001000001110: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b1;
+      cstm_funct7_checkable = 1'b1;
+      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_funct3_rec = 3'b000;
+      cstm_funct7_rec = 7'b000_0000;
+    end
+
+    // OPOP sub
+    39'b110011001000000000000111000001000001110: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b1;
+      cstm_funct7_checkable = 1'b1;
+      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_funct3_rec = 3'b000;
+      cstm_funct7_rec = 7'b010_0000;
+    end
+
+    // OPOP slts
+    39'b110000010000000000000111000001000001110: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b1;
+      cstm_funct7_checkable = 1'b1;
+      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_funct3_rec = 3'b010;
+      cstm_funct7_rec = 7'b000_0000;
+    end
+
+    // OPOP sltu
+    39'b110000011000000000000111000001000001110: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b1;
+      cstm_funct7_checkable = 1'b1;
+      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_funct3_rec = 3'b011;
+      cstm_funct7_rec = 7'b000_0000;
+    end
+
+    // OPOP xor
+    39'b110101111000000000000111000001000001110: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b1;
+      cstm_funct7_checkable = 1'b1;
+      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_funct3_rec = 3'b100;
+      cstm_funct7_rec = 7'b000_0000;
+    end
+
+    // OPOP or
+    39'b110101110000000000000111000001000001110: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b1;
+      cstm_funct7_checkable = 1'b1;
+      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_funct3_rec = 3'b110;
+      cstm_funct7_rec = 7'b000_0000;
+    end
+
+    // OPOP and
+    39'b110010101000000000000111000001000001110: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b1;
+      cstm_funct7_checkable = 1'b1;
+      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_funct3_rec = 3'b111;
+      cstm_funct7_rec = 7'b000_0000;
+    end
+
+    // OPOP sll
+    39'b110100111000000000000111000001000001110: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b1;
+      cstm_funct7_checkable = 1'b1;
+      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_funct3_rec = 3'b001;
+      cstm_funct7_rec = 7'b000_0000;
+    end
+
+    // OPOP srl
+    39'b110100101000000000000111000001000001110: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b1;
+      cstm_funct7_checkable = 1'b1;
+      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_funct3_rec = 3'b101;
+      cstm_funct7_rec = 7'b000_0000;
+    end
+
+    // OPOP sra
+    39'b110100100000000000000111000001000001110: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b1;
+      cstm_funct7_checkable = 1'b1;
+      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_funct3_rec = 3'b101;
+      cstm_funct7_rec = 7'b010_0000;
+    end
+
+
+
+
+
 
     default: begin
       cstm_opcode_checkable = 1'b0;
+      cstm_funct3_checkable = 1'b0;
+      cstm_funct7_checkable = 1'b0;
     end
   endcase
 
@@ -694,6 +810,10 @@ always_comb begin
 
   if (cstm_funct3_checkable) begin
     cstm_fault_detected = cstm_fault_detected || (cstm_instr_reconstructable_i && (cstm_funct3_rec != cstm_funct3_ref));
+  end
+
+  if (cstm_funct7_checkable) begin
+    cstm_fault_detected = cstm_fault_detected || (cstm_instr_reconstructable_i && (cstm_funct7_rec != cstm_funct7_ref));
   end
 
 end

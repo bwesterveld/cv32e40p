@@ -533,6 +533,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
         imm_b_mux_sel_o     = IMMB_U;
         alu_operator_o      = ALU_ADD;
         regfile_alu_we      = 1'b1;
+        cstm_instr_reconstructable_o = 1'b1;
       end
 
       OPCODE_OPIMM: begin // Register-Immediate ALU Operations
@@ -542,20 +543,22 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
         rega_used_o         = 1'b1;
 
         unique case (instr_rdata_i[14:12])
-          3'b000: alu_operator_o = ALU_ADD;  // Add Immediate
-          3'b010: alu_operator_o = ALU_SLTS; // Set to one if Lower Than Immediate
-          3'b011: alu_operator_o = ALU_SLTU; // Set to one if Lower Than Immediate Unsigned
-          3'b100: alu_operator_o = ALU_XOR;  // Exclusive Or with Immediate
-          3'b110: alu_operator_o = ALU_OR;   // Or with Immediate
-          3'b111: alu_operator_o = ALU_AND;  // And with Immediate
+          3'b000: alu_operator_o = ALU_ADD;  cstm_instr_reconstructable_o = 1'b1;// Add Immediate
+          3'b010: alu_operator_o = ALU_SLTS; cstm_instr_reconstructable_o = 1'b1;// Set to one if Lower Than Immediate
+          3'b011: alu_operator_o = ALU_SLTU; cstm_instr_reconstructable_o = 1'b1;// Set to one if Lower Than Immediate Unsigned
+          3'b100: alu_operator_o = ALU_XOR;  cstm_instr_reconstructable_o = 1'b1;// Exclusive Or with Immediate
+          3'b110: alu_operator_o = ALU_OR;   cstm_instr_reconstructable_o = 1'b1;// Or with Immediate
+          3'b111: alu_operator_o = ALU_AND;  cstm_instr_reconstructable_o = 1'b1;// And with Immediate
 
           3'b001: begin
             alu_operator_o = ALU_SLL;  // Shift Left Logical by Immediate
+            cstm_instr_reconstructable_o = 1'b1;
             if (instr_rdata_i[31:25] != 7'b0)
               illegal_insn_o = 1'b1;
           end
 
           3'b101: begin
+            cstm_instr_reconstructable_o = 1'b1;
             if (instr_rdata_i[31:25] == 7'b0)
               alu_operator_o = ALU_SRL;  // Shift Right Logical by Immediate
             else if (instr_rdata_i[31:25] == 7'b010_0000)
@@ -662,18 +665,21 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
 
           if (~instr_rdata_i[28]) regb_used_o = 1'b1;
 
+          // Prefix 00/01, so the first bit is a 0 in the funct7 field.
+          // regb_used is set by bit 28, which is 0 in all these.
+          // So regb_used_o is always set.
           unique case ({instr_rdata_i[30:25], instr_rdata_i[14:12]})
             // RV32I ALU operations
-            {6'b00_0000, 3'b000}: alu_operator_o = ALU_ADD;   // Add
-            {6'b10_0000, 3'b000}: alu_operator_o = ALU_SUB;   // Sub
-            {6'b00_0000, 3'b010}: alu_operator_o = ALU_SLTS;  // Set Lower Than
-            {6'b00_0000, 3'b011}: alu_operator_o = ALU_SLTU;  // Set Lower Than Unsigned
-            {6'b00_0000, 3'b100}: alu_operator_o = ALU_XOR;   // Xor
-            {6'b00_0000, 3'b110}: alu_operator_o = ALU_OR;    // Or
-            {6'b00_0000, 3'b111}: alu_operator_o = ALU_AND;   // And
-            {6'b00_0000, 3'b001}: alu_operator_o = ALU_SLL;   // Shift Left Logical
-            {6'b00_0000, 3'b101}: alu_operator_o = ALU_SRL;   // Shift Right Logical
-            {6'b10_0000, 3'b101}: alu_operator_o = ALU_SRA;   // Shift Right Arithmetic
+            {6'b00_0000, 3'b000}: alu_operator_o = ALU_ADD;  cstm_instr_reconstructable_o = 1'b1; // Add
+            {6'b10_0000, 3'b000}: alu_operator_o = ALU_SUB;  cstm_instr_reconstructable_o = 1'b1; // Sub
+            {6'b00_0000, 3'b010}: alu_operator_o = ALU_SLTS; cstm_instr_reconstructable_o = 1'b1; // Set Lower Than
+            {6'b00_0000, 3'b011}: alu_operator_o = ALU_SLTU; cstm_instr_reconstructable_o = 1'b1; // Set Lower Than Unsigned
+            {6'b00_0000, 3'b100}: alu_operator_o = ALU_XOR;  cstm_instr_reconstructable_o = 1'b1; // Xor
+            {6'b00_0000, 3'b110}: alu_operator_o = ALU_OR;   cstm_instr_reconstructable_o = 1'b1; // Or
+            {6'b00_0000, 3'b111}: alu_operator_o = ALU_AND;  cstm_instr_reconstructable_o = 1'b1; // And
+            {6'b00_0000, 3'b001}: alu_operator_o = ALU_SLL;  cstm_instr_reconstructable_o = 1'b1; // Shift Left Logical
+            {6'b00_0000, 3'b101}: alu_operator_o = ALU_SRL;  cstm_instr_reconstructable_o = 1'b1; // Shift Right Logical
+            {6'b10_0000, 3'b101}: alu_operator_o = ALU_SRA;  cstm_instr_reconstructable_o = 1'b1; // Shift Right Arithmetic
 
             // supported RV32M instructions
             {6'b00_0001, 3'b000}: begin // mul
