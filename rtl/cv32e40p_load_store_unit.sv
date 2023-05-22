@@ -144,10 +144,14 @@ module cv32e40p_load_store_unit import cv32e40p_pkg::*; import cv32e40p_apu_core
   logic [31:0] rdata_q;
   
   // Signal to keep track of whether the control signals are valid
-  logic cstm_control_signals_checked;
+  logic cstm_opcode_checkable;
+  logic cstm_funct3_checkable;
+
   logic cstm_fault_detected;
   logic [6:0] cstm_opcode_ref;
   logic [6:0] cstm_opcode_rec;
+  logic [2:0] cstm_funct3_rec;
+  logic [2:0] cstm_funct3_ref;
 
   ///////////////////////////////// BE generation ////////////////////////////////
   always_comb begin
@@ -583,24 +587,114 @@ module cv32e40p_load_store_unit import cv32e40p_pkg::*; import cv32e40p_apu_core
 
 
 always_comb begin
+  cstm_opcode_checkable = 1'b0;
+  cstm_funct3_checkable = 1'b0;
 
   cstm_opcode_ref = cstm_instr_data_i[6:0];
   cstm_opcode_rec = 7'b0000000;
 
+  cstm_funct3_ref = cstm_instr_data_i[14:12];
+  cstm_funct3_rec = 3'b000;
+
+  cstm_fault_detected = 1'b0;
   case ({cstm_instr_reconstructable_i, cstm_alu_en_i, cstm_alu_operator_i, cstm_alu_op_a_mux_sel_i, cstm_alu_op_b_mux_sel_i, cstm_alu_op_c_mux_sel_i, cstm_alu_vec_mode_i, cstm_scalar_replication_i, cstm_scalar_replication_c_i, cstm_regc_mux_i, cstm_imm_a_mux_sel_i, cstm_imm_b_mux_sel_i, cstm_mult_operator_i, cstm_mult_int_en_i, cstm_mult_imm_mux_i, cstm_mult_signed_mode_i, cstm_regfile_alu_we_i, cstm_rega_used_i, cstm_regb_used_i, cstm_regc_used_i})
     // LUI
     39'b110011000010010000000111001001000001000: begin
       // Code for LUI
-      cstm_control_signals_checked = 1'b1;
+      cstm_opcode_checkable = 1'b1;
       cstm_opcode_rec = OPCODE_LUI;
     end
 
+    // AUIPC
+    39'b110011000001010000000111001001000001000: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_opcode_rec = OPCODE_AUIPC;
+    end
+
+    // OPIMM add immediate
+    39'b110011000000010000000111000001000001100: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b0;
+      cstm_opcode_rec = OPCODE_OPIMM;
+      cstm_funct3_rec = 3'b000;
+    end
+
+    // OPIMM set less than immediate
+    39'b110000010000010000000111000001000001100: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b0;
+      cstm_opcode_rec = OPCODE_OPIMM;
+      cstm_funct3_rec = 3'b010;
+    end
+
+    // OPIMM set less than immediate unsigned
+    39'b110000011000010000000111000001000001100: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b0;
+      cstm_opcode_rec = OPCODE_OPIMM;
+      cstm_funct3_rec = 3'b011;
+    end
+
+    // OPIMM xor
+    39'b110101111000010000000111000001000001100: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b0;
+      cstm_opcode_rec = OPCODE_OPIMM;
+      cstm_funct3_rec = 3'b100;
+    end
+
+    // OPIMM or
+    39'b110101110000010000000111000001000001100: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b0;
+      cstm_opcode_rec = OPCODE_OPIMM;
+      cstm_funct3_rec = 3'b110;
+    end
+
+    // OPIMM and
+    39'b110010101000010000000111000001000001100: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b0;
+      cstm_opcode_rec = OPCODE_OPIMM;
+      cstm_funct3_rec = 3'b111;
+    end
+
+    // OPIMM sll
+    39'b110100111000010000000111000001000001100: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b0;
+      cstm_opcode_rec = OPCODE_OPIMM;
+      cstm_funct3_rec = 3'b001;
+    end
+
+    // OPIMM srl
+    39'b110100101000010000000111000001000001100: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b0;
+      cstm_opcode_rec = OPCODE_OPIMM;
+      cstm_funct3_rec = 3'101;
+    end
+
+    // OPIMM sra (same funct3 as srl)
+    39'b110100100000010000000111000001000001100: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b0;
+      cstm_opcode_rec = OPCODE_OPIMM;
+      cstm_funct3_rec = 3'101;
+    end
+
     default: begin
-      cstm_control_signals_checked = 1'b0;
+      cstm_opcode_checkable = 1'b0;
     end
   endcase
 
-  cstm_fault_detected = cstm_instr_reconstructable_i && (cstm_opcode_rec != cstm_opcode_ref);
+  if (cstm_opcode_checkable) begin
+    cstm_fault_detected = cstm_fault_detected || (cstm_instr_reconstructable_i && (cstm_opcode_rec != cstm_opcode_ref));
+  end
+
+  if (cstm_funct3_checkable) begin
+    cstm_fault_detected = cstm_fault_detected || (cstm_instr_reconstructable_i && (cstm_funct3_rec != cstm_funct3_ref));
+  end
 
 end
 
