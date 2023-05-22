@@ -691,9 +691,8 @@ always_comb begin
       cstm_funct3_rec = 3'b101;
     end
 
-
     // OPOP add
-    39'b110011000000000000000111000001000001110: begin
+    39'b110011000000000000000111000000000001110: begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
@@ -703,7 +702,7 @@ always_comb begin
     end
 
     // OPOP sub
-    39'b110011001000000000000111000001000001110: begin
+    39'b110011001000000000000111000000000001110: begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
@@ -713,7 +712,7 @@ always_comb begin
     end
 
     // OPOP slts
-    39'b110000010000000000000111000001000001110: begin
+    39'b110000010000000000000111000000000001110: begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
@@ -723,7 +722,7 @@ always_comb begin
     end
 
     // OPOP sltu
-    39'b110000011000000000000111000001000001110: begin
+    39'b110000011000000000000111000000000001110: begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
@@ -733,7 +732,7 @@ always_comb begin
     end
 
     // OPOP xor
-    39'b110101111000000000000111000001000001110: begin
+    39'b110101111000000000000111000000000001110: begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
@@ -743,7 +742,7 @@ always_comb begin
     end
 
     // OPOP or
-    39'b110101110000000000000111000001000001110: begin
+    39'b110101110000000000000111000000000001110: begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
@@ -753,7 +752,7 @@ always_comb begin
     end
 
     // OPOP and
-    39'b110010101000000000000111000001000001110: begin
+    39'b110010101000000000000111000000000001110: begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
@@ -763,7 +762,7 @@ always_comb begin
     end
 
     // OPOP sll
-    39'b110100111000000000000111000001000001110: begin
+    39'b110100111000000000000111000000000001110: begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
@@ -773,7 +772,7 @@ always_comb begin
     end
 
     // OPOP srl
-    39'b110100101000000000000111000001000001110: begin
+    39'b110100101000000000000111000000000001110: begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
@@ -783,7 +782,7 @@ always_comb begin
     end
 
     // OPOP sra
-    39'b110100100000000000000111000001000001110: begin
+    39'b110100100000000000000111000000000001110: begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
