@@ -687,6 +687,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
               mult_int_en     = 1'b1;
               mult_operator_o = MUL_MAC32;
               regc_mux_o      = REGC_ZERO;
+              cstm_instr_reconstructable_o = 1'b1;
             end
             {6'b00_0001, 3'b001}: begin // mulh
               alu_en             = 1'b0;
@@ -695,6 +696,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
               mult_signed_mode_o = 2'b11;
               mult_int_en        = 1'b1;
               mult_operator_o    = MUL_H;
+              cstm_instr_reconstructable_o = 1'b1;
             end
             {6'b00_0001, 3'b010}: begin // mulhsu
               alu_en             = 1'b0;
@@ -703,6 +705,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
               mult_signed_mode_o = 2'b01;
               mult_int_en        = 1'b1;
               mult_operator_o    = MUL_H;
+              cstm_instr_reconstructable_o = 1'b1;
             end
             {6'b00_0001, 3'b011}: begin // mulhu
               alu_en             = 1'b0;
@@ -711,30 +714,35 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
               mult_signed_mode_o = 2'b00;
               mult_int_en        = 1'b1;
               mult_operator_o    = MUL_H;
+              cstm_instr_reconstructable_o = 1'b1;
             end
             {6'b00_0001, 3'b100}: begin // div
               alu_op_a_mux_sel_o = OP_A_REGB_OR_FWD;
               alu_op_b_mux_sel_o = OP_B_REGA_OR_FWD;
               regb_used_o        = 1'b1;
               alu_operator_o     = ALU_DIV;
+              cstm_instr_reconstructable_o = 1'b1;
             end
             {6'b00_0001, 3'b101}: begin // divu
               alu_op_a_mux_sel_o = OP_A_REGB_OR_FWD;
               alu_op_b_mux_sel_o = OP_B_REGA_OR_FWD;
               regb_used_o        = 1'b1;
               alu_operator_o     = ALU_DIVU;
+              cstm_instr_reconstructable_o = 1'b1;
             end
             {6'b00_0001, 3'b110}: begin // rem
               alu_op_a_mux_sel_o = OP_A_REGB_OR_FWD;
               alu_op_b_mux_sel_o = OP_B_REGA_OR_FWD;
               regb_used_o        = 1'b1;
               alu_operator_o     = ALU_REM;
+              cstm_instr_reconstructable_o = 1'b1;
             end
             {6'b00_0001, 3'b111}: begin // remu
               alu_op_a_mux_sel_o = OP_A_REGB_OR_FWD;
               alu_op_b_mux_sel_o = OP_B_REGA_OR_FWD;
               regb_used_o        = 1'b1;
               alu_operator_o     = ALU_REMU;
+              cstm_instr_reconstructable_o = 1'b1;
             end
 
             // PULP specific instructions
