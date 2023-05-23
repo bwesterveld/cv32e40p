@@ -879,17 +879,25 @@ always_comb begin
     end
   endcase
 
-  if (cstm_opcode_checkable) begin
-    cstm_fault_detected = cstm_fault_detected || (cstm_instr_reconstructable_i && (cstm_opcode_rec != cstm_opcode_ref));
+  if (cstm_instr_reconstructable_i) begin
+
+    if (cstm_opcode_checkable) begin
+      cstm_fault_detected = cstm_fault_detected || (cstm_instr_reconstructable_i && (cstm_opcode_rec != cstm_opcode_ref));
+    end
+
+    if (cstm_funct3_checkable) begin
+      cstm_fault_detected = cstm_fault_detected || (cstm_instr_reconstructable_i && (cstm_funct3_rec != cstm_funct3_ref));
+    end
+
+    if (cstm_funct7_checkable) begin
+      cstm_fault_detected = cstm_fault_detected || (cstm_instr_reconstructable_i && (cstm_funct7_rec != cstm_funct7_ref));
+    end
+
+    if (~cstm_opcode_checkable && ~cstm_funct3_checkable && ~cstm_funct7_checkable) begin
+      cstm_fault_detected = 1'b1;
+    end
   end
 
-  if (cstm_funct3_checkable) begin
-    cstm_fault_detected = cstm_fault_detected || (cstm_instr_reconstructable_i && (cstm_funct3_rec != cstm_funct3_ref));
-  end
-
-  if (cstm_funct7_checkable) begin
-    cstm_fault_detected = cstm_fault_detected || (cstm_instr_reconstructable_i && (cstm_funct7_rec != cstm_funct7_ref));
-  end
 
 end
 
