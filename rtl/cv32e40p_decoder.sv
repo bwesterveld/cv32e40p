@@ -543,7 +543,7 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
         rega_used_o         = 1'b1;
 
         unique case (instr_rdata_i[14:12])
-          3'b000: alu_operator_o = ALU_ADD;  cstm_instr_reconstructable_o = 1'b1;// Add Immediate
+          3'b000: begin alu_operator_o = ALU_ADD;  cstm_instr_reconstructable_o = 1'b1; end // Add Immediate
           3'b010: alu_operator_o = ALU_SLTS; cstm_instr_reconstructable_o = 1'b1;// Set to one if Lower Than Immediate
           3'b011: alu_operator_o = ALU_SLTU; cstm_instr_reconstructable_o = 1'b1;// Set to one if Lower Than Immediate Unsigned
           3'b100: alu_operator_o = ALU_XOR;  cstm_instr_reconstructable_o = 1'b1;// Exclusive Or with Immediate
