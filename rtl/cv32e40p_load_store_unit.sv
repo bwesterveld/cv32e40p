@@ -156,6 +156,7 @@ module cv32e40p_load_store_unit import cv32e40p_pkg::*; import cv32e40p_apu_core
   logic [2:0] cstm_funct3_ref;
   
   logic [6:0] cstm_funct7_rec;
+  logic [6:0] cstm_funct7_ref;
 
   ///////////////////////////////// BE generation ////////////////////////////////
   always_comb begin
@@ -696,7 +697,7 @@ always_comb begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
-      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_opcode_rec = OPCODE_OP;
       cstm_funct3_rec = 3'b000;
       cstm_funct7_rec = 7'b000_0000;
     end
@@ -706,7 +707,7 @@ always_comb begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
-      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_opcode_rec = OPCODE_OP;
       cstm_funct3_rec = 3'b000;
       cstm_funct7_rec = 7'b010_0000;
     end
@@ -716,7 +717,7 @@ always_comb begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
-      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_opcode_rec = OPCODE_OP;
       cstm_funct3_rec = 3'b010;
       cstm_funct7_rec = 7'b000_0000;
     end
@@ -726,7 +727,7 @@ always_comb begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
-      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_opcode_rec = OPCODE_OP;
       cstm_funct3_rec = 3'b011;
       cstm_funct7_rec = 7'b000_0000;
     end
@@ -736,7 +737,7 @@ always_comb begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
-      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_opcode_rec = OPCODE_OP;
       cstm_funct3_rec = 3'b100;
       cstm_funct7_rec = 7'b000_0000;
     end
@@ -746,7 +747,7 @@ always_comb begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
-      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_opcode_rec = OPCODE_OP;
       cstm_funct3_rec = 3'b110;
       cstm_funct7_rec = 7'b000_0000;
     end
@@ -756,7 +757,7 @@ always_comb begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
-      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_opcode_rec = OPCODE_OP;
       cstm_funct3_rec = 3'b111;
       cstm_funct7_rec = 7'b000_0000;
     end
@@ -766,7 +767,7 @@ always_comb begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
-      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_opcode_rec = OPCODE_OP;
       cstm_funct3_rec = 3'b001;
       cstm_funct7_rec = 7'b000_0000;
     end
@@ -776,7 +777,7 @@ always_comb begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
-      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_opcode_rec = OPCODE_OP;
       cstm_funct3_rec = 3'b101;
       cstm_funct7_rec = 7'b000_0000;
     end
@@ -786,7 +787,7 @@ always_comb begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
-      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_opcode_rec = OPCODE_OP;
       cstm_funct3_rec = 3'b101;
       cstm_funct7_rec = 7'b010_0000;
     end
@@ -796,7 +797,7 @@ always_comb begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
-      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_opcode_rec = OPCODE_OP;
       cstm_funct3_rec = 3'b000;
       cstm_funct7_rec = 7'b000_0001;
     end
@@ -806,7 +807,7 @@ always_comb begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
-      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_opcode_rec = OPCODE_OP;
       cstm_funct3_rec = 3'b001;
       cstm_funct7_rec = 7'b000_0001;
     end
@@ -816,7 +817,7 @@ always_comb begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
-      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_opcode_rec = OPCODE_OP;
       cstm_funct3_rec = 3'b010;
       cstm_funct7_rec = 7'b000_0001;
     end
@@ -826,7 +827,7 @@ always_comb begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
-      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_opcode_rec = OPCODE_OP;
       cstm_funct3_rec = 3'b011;
       cstm_funct7_rec = 7'b000_0001;
     end
@@ -836,7 +837,7 @@ always_comb begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
-      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_opcode_rec = OPCODE_OP;
       cstm_funct3_rec = 3'b100;
       cstm_funct7_rec = 7'b000_0001;
     end
@@ -846,7 +847,7 @@ always_comb begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
-      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_opcode_rec = OPCODE_OP;
       cstm_funct3_rec = 3'b101;
       cstm_funct7_rec = 7'b000_0001;
     end
@@ -856,7 +857,7 @@ always_comb begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
-      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_opcode_rec = OPCODE_OP;
       cstm_funct3_rec = 3'b110;
       cstm_funct7_rec = 7'b000_0001;
     end
@@ -866,7 +867,7 @@ always_comb begin
       cstm_opcode_checkable = 1'b1;
       cstm_funct3_checkable = 1'b1;
       cstm_funct7_checkable = 1'b1;
-      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_opcode_rec = OPCODE_OP;
       cstm_funct3_rec = 3'b111;
       cstm_funct7_rec = 7'b000_0001;
     end
