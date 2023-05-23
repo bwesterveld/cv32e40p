@@ -544,11 +544,11 @@ module cv32e40p_decoder import cv32e40p_pkg::*; import cv32e40p_apu_core_pkg::*;
 
         unique case (instr_rdata_i[14:12])
           3'b000: begin alu_operator_o = ALU_ADD;  cstm_instr_reconstructable_o = 1'b1; end // Add Immediate
-          3'b010: alu_operator_o = ALU_SLTS; cstm_instr_reconstructable_o = 1'b1;// Set to one if Lower Than Immediate
-          3'b011: alu_operator_o = ALU_SLTU; cstm_instr_reconstructable_o = 1'b1;// Set to one if Lower Than Immediate Unsigned
-          3'b100: alu_operator_o = ALU_XOR;  cstm_instr_reconstructable_o = 1'b1;// Exclusive Or with Immediate
-          3'b110: alu_operator_o = ALU_OR;   cstm_instr_reconstructable_o = 1'b1;// Or with Immediate
-          3'b111: alu_operator_o = ALU_AND;  cstm_instr_reconstructable_o = 1'b1;// And with Immediate
+          3'b010: begin alu_operator_o = ALU_SLTS; cstm_instr_reconstructable_o = 1'b1; end// Set to one if Lower Than Immediate
+          3'b011: begin alu_operator_o = ALU_SLTU; cstm_instr_reconstructable_o = 1'b1; end// Set to one if Lower Than Immediate Unsigned
+          3'b100: begin alu_operator_o = ALU_XOR;  cstm_instr_reconstructable_o = 1'b1; end// Exclusive Or with Immediate
+          3'b110: begin alu_operator_o = ALU_OR;   cstm_instr_reconstructable_o = 1'b1; end// Or with Immediate
+          3'b111: begin alu_operator_o = ALU_AND;  cstm_instr_reconstructable_o = 1'b1; end// And with Immediate
 
           3'b001: begin
             alu_operator_o = ALU_SLL;  // Shift Left Logical by Immediate
