@@ -791,7 +791,6 @@ always_comb begin
       cstm_funct7_rec = 7'b010_0000;
     end
 
-    // -----------
     // OPOP mul
     39'b100000011000000000000111000000010001110: begin
       cstm_opcode_checkable = 1'b1;
@@ -802,6 +801,75 @@ always_comb begin
       cstm_funct7_rec = 7'b000_0001;
     end
 
+    // OPOP mulh
+    39'b100000011000000000000111000011010111111: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b1;
+      cstm_funct7_checkable = 1'b1;
+      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_funct3_rec = 3'b001;
+      cstm_funct7_rec = 7'b000_0001;
+    end
+
+    // OPOP mulhsu
+    39'b100000011000000000000111000011010011111: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b1;
+      cstm_funct7_checkable = 1'b1;
+      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_funct3_rec = 3'b010;
+      cstm_funct7_rec = 7'b000_0001;
+    end
+
+    // OPOP mulhu
+    39'b100000011000000000000111000011010001111: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b1;
+      cstm_funct7_checkable = 1'b1;
+      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_funct3_rec = 3'b011;
+      cstm_funct7_rec = 7'b000_0001;
+    end
+
+    // OPOP div
+    39'b110110001011011000000111000001000001110: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b1;
+      cstm_funct7_checkable = 1'b1;
+      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_funct3_rec = 3'b100;
+      cstm_funct7_rec = 7'b000_0001;
+    end
+    
+    // OPOP divu
+    39'b110110000011011000000111000001000001110: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b1;
+      cstm_funct7_checkable = 1'b1;
+      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_funct3_rec = 3'b101;
+      cstm_funct7_rec = 7'b000_0001;
+    end
+    
+    // OPOP rem
+    39'b110110011011011000000111000001000001110: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b1;
+      cstm_funct7_checkable = 1'b1;
+      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_funct3_rec = 3'b110;
+      cstm_funct7_rec = 7'b000_0001;
+    end
+    
+    // OPOP remu
+    39'b110110010011011000000111000001000001110: begin
+      cstm_opcode_checkable = 1'b1;
+      cstm_funct3_checkable = 1'b1;
+      cstm_funct7_checkable = 1'b1;
+      cstm_opcode_rec = OPCODE_OPOP;
+      cstm_funct3_rec = 3'b111;
+      cstm_funct7_rec = 7'b000_0001;
+    end
 
     default: begin
       cstm_opcode_checkable = 1'b0;
